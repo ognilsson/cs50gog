@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Index
+{% endblock %}
+
+{% block main %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Shares</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in range(dim) %}
+                <tr>
+                    {% for key in rows[i] %}
+                        <td>{{ rows[i][key] }}</td>
+                    {% endfor %}
+                    <td>{{ prices[i] | usd}}</td>
+                    <td>{{ (prices[i] * rows[i]["shares"]) | usd }}</td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td>CASH</td>
+                <td colspan="3"></td>
+                <td> {{ cash | usd }} </td>
+            </tr>
+            <tfoot>
+                <td colspan="4"></td>
+                <td>{{ total_value | usd }}</td>
+            </tfoot>
+        </tbody>
+    </table>
+{% endblock %}
