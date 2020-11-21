@@ -1,4 +1,5 @@
 import os
+import re
 
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
@@ -8,11 +9,25 @@ from werkzeug.exceptions import default_exceptions, HTTPException, InternalServe
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 from pytz import timezone
+#from flask_mail import Mail, Message
+import random
+import string
 
 from helpers import apology, login_required, lookup, usd
 
 # Configure application
 app = Flask(__name__)
+
+
+# Email config
+# app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_DEFAULT_SENDER")
+# app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
+# app.config["MAIL_PORT"] = 587
+# app.config["MAIL_SERVER"] = "smtp.gmail.com"
+# app.config["MAIL_USE_TLS"] = True
+# app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
+# mail = Mail(app)
+
 
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -47,23 +62,8 @@ db = SQL("sqlite:///journal.db")
 @app.route("/")
 @login_required
 def index():
-    """Show portfolio of stocks"""
-
-    # Find how much cash the uer has
-    cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
-
-    # Find the symbol, name, and number of shares of the stocks teh user currently owns
-    rows = db.execute("SELECT symbol, stock, shares FROM equity WHERE user_id = ?", session["user_id"])
-
-    # Look up the current price of the stocks and store them in a list. Also add the current value of the stocks to the total
-    prices = []
-    total_value = cash
-    for i in range(len(rows)):
-        prices.append(lookup(rows[i]["symbol"])["price"])
-        total_value += prices[i] * rows[i]["shares"]
-
-    return render_template("index.html", cash=cash, rows=rows, dim=len(rows), prices=prices, total_value=total_value)
-
+    """Show something to the user"""
+    return apology("This is the index page")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -76,20 +76,20 @@ def login():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
 
-        # Ensure username was submitted
-        if not request.form.get("username"):
-            return apology("must provide username", 403)
+        # Ensure email was submitted
+        if not request.form.get("email"):
+            return apology("must provide email as username", 403)
 
         # Ensure password was submitted
         elif not request.form.get("password"):
             return apology("must provide password", 403)
 
-        # Query database for username
-        rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
+        # Query database for email
+        rows = db.execute("SELECT * FROM users WHERE email = ?", request.form.get("email"))
 
-        # Ensure username exists and password is correct
+        # Ensure email exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
-            return apology("invalid username and/or password", 403)
+            return apology("invalid email and/or password", 403)
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
@@ -100,6 +100,30 @@ def login():
     # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render_template("login.html")
+
+
+@app.route("/forgot_password", methods=["GET", "POST"]) ##### Need to add function so users can change password
+def forgot_password():
+    """Sends a new password to the user"""
+
+    # User just clicked the link (reached route via GET)
+    if request.method == "GET":
+        return render_template("forgot_password.html")
+
+    # User submitted their email (Reached route via POST)
+    else:
+        # Generate new random password
+        # From https://pynative.com/python-generate-random-string/
+        length = 8
+        letters = string.ascii_lowercase
+        new_password = ''.join(random.choice(letters) for i in range(length))
+
+        # Send email to user with new password
+        # email = request.form.get("email")
+        # info = "Your new password is" + new_password
+        # message = Message(info, recipients=[email])
+        # mail.send(message)
+        return redirect("/login")
 
 
 @app.route("/logout")
@@ -123,9 +147,9 @@ def register():
 
     # User reached route via post
     else:
-        # Checking for username and if it already exists
-        if not request.form.get("username") or len(db.execute("SELECT username from users WHERE username = ?", request.form.get("username"))) != 0:
-            return apology("Username not inputted or already taken")
+        # Checking for email and if it already exists
+        if not request.form.get("email") or len(db.execute("SELECT email from users WHERE email = ?", request.form.get("email"))) != 0:
+            return apology("email not inputted or already used")
 
         # Checking for password and if it matches the confirmation
         if not request.form.get("password") or request.form.get("password") != request.form.get("confirmation"):
@@ -133,11 +157,9 @@ def register():
 
         # Insert new user to db
         else:
-            db.execute("INSERT INTO users (username, hash) VALUES (?, ?)", request.form.get("username"),
+            db.execute("INSERT INTO users (email, hash) VALUES (?, ?)", request.form.get("email"),
                        generate_password_hash(request.form.get("password")))
             return redirect("/login")
-
-
 
 
 def errorhandler(e):

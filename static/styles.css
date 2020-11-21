@@ -5,22 +5,11 @@ nav .navbar-brand
 }
 
 /* Colors for brand */
-nav .navbar-brand .blue
+nav .navbar-brand .theme-color
 {
-    color: #537fbe;
+    color: #D75700;
 }
-nav .navbar-brand .red
-{
-    color: #ea433b;
-}
-nav .navbar-brand .yellow
-{
-    color: #f5b82e;
-}
-nav .navbar-brand .green
-{
-    color: #2e944b;
-}
+
 
 main .form-control
 {
@@ -44,4 +33,23 @@ main img
 {
     /* Constrain images on small screens */
     max-width: 100%;
+}
+
+.accordion
+{
+    margin-top: 5%;
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.btn
+{
+    background-color: #66002B;
+}
+
+.form-control:focus {
+    border-color: #66002B;
+    box-shadow: 0 0 5px #66002B;
 }
