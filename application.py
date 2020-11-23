@@ -1,5 +1,6 @@
 import os
 import re
+import io
 
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
@@ -12,6 +13,10 @@ from pytz import timezone
 from flask_mail import Mail, Message
 import random
 import string
+import matplotlib
+matplotlib.use('pdf')
+import matplotlib.pyplot as plt
+import base64
 
 from helpers import apology, login_required, lookup, usd
 
@@ -60,11 +65,54 @@ db = SQL("sqlite:///journal.db")
     #raise RuntimeError("API_KEY not set")
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
     """Show something to the user"""
-    return apology("This is the index page")
+    # User reaches route via GET
+    if request.method == "GET":
+        return render_template("index.html")
+
+    # User submits the form (Reaches via POST)
+    else:
+        rows = db.execute("SELECT create_date, overall FROM happiness WHERE user_id = ?", session["user_id"])
+        x = []
+        y = []
+        print(rows)
+        for row in rows:
+            print(row['create_date'])
+            print(row['overall'])
+            x.append(row['create_date'])
+            y.append(row['overall'])
+            z = [1,2,3]
+            plot(z, y)
+            fig = '/static/overall.jpg'
+        return render_template("index.html", test = y, plot=fig)    #apology("This is the index page")
+
+
+@app.route("/overall_fig")
+@login_required
+def build_plot():
+
+    # From https://stackoverflow.com/questions/41459657/how-to-create-dynamic-plots-to-display-on-flask
+    img = io.BytesIO()
+
+    rows = db.execute("SELECT create_date, overall FROM happiness WHERE user_id = ?", session["user_id"])
+    x = []
+    y = []
+    for row in rows:
+        x.append(row['create_date'])
+        y.append(row['overall'])
+
+    plt.plot(x,y, 'ro--')
+    plt.title("Overall Happiness")
+    plt.ylim(0,10)
+    plt.savefig(img, format='png')
+    img.seek(0)
+
+    plot_url = base64.b64encode(img.getvalue()).decode()
+
+    return '<img src="data:image/png;base64,{}">'.format(plot_url)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -129,6 +177,7 @@ def forgot_password():
         if len(db.execute("SELECT * FROM users WHERE email = ?", email)) != 1:
             return apology("email does not match or records", 403)
 
+        db.execute("UPDATE users SET hash = ? WHERE email = ?", generate_password_hash(new_password), email)
         m_body = "Your new password is: " + new_password
         message = Message(subject="New Password", sender="cs50microjournal@gmail.com", recipients=[email])
         message.body = m_body
