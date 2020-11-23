@@ -5,13 +5,20 @@
 {% endblock %}
 
 {% block main %}
-    <h1>Overall Happiness</h1>
-    <form action="/" method="post">
+    <h2>Select Range to Display</h2>
+    <br>
+    <form action="/overall_fig" method="get">
         <div class="form-group">
-            {% for option in activities %}
-                <input name="activity" type="checkbox" value="{{ option }}"> {{ option }}
-            {% endfor %}
+            <select name="sport">
+                <option disabled selected value="">Select Range</option>
+                <option value="ALL">All</option>
+                <option value="MONTH">Last Month</option>
+                <option value="WEEK">Last Week</option>
+            </select>
             <button class="btn btn-primary" type="submit">Show!</button>
         </div>
     </form>
+    <div>
+        {{ test }}
+    </div>
 {% endblock %}
