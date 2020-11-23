@@ -9,7 +9,7 @@ from werkzeug.exceptions import default_exceptions, HTTPException, InternalServe
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 from pytz import timezone
-#from flask_mail import Mail, Message
+from flask_mail import Mail, Message
 import random
 import string
 
@@ -20,13 +20,14 @@ app = Flask(__name__)
 
 
 # Email config
-# app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_DEFAULT_SENDER")
-# app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
-# app.config["MAIL_PORT"] = 587
-# app.config["MAIL_SERVER"] = "smtp.gmail.com"
-# app.config["MAIL_USE_TLS"] = True
-# app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
-# mail = Mail(app)
+app.config["MAIL_DEFAULT_SENDER"] = "cs50microjournal@gmail.com"
+app.config["MAIL_USERNAME"] = "cs50microjournal@gmail.com"
+app.config["MAIL_PASSWORD"] = "HMS2020!"
+app.config["MAIL_PORT"] = 465
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
+app.config["MAIL_USE_TLS"] = False
+app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
 
 
 # Ensure templates are auto-reloaded
@@ -112,17 +113,27 @@ def forgot_password():
 
     # User submitted their email (Reached route via POST)
     else:
+        # Ensure email was submitted
+        if not request.form.get("email"):
+            return apology("Must provide email", 403)
+
         # Generate new random password
         # From https://pynative.com/python-generate-random-string/
-        length = 8
+        length = 4
         letters = string.ascii_lowercase
         new_password = ''.join(random.choice(letters) for i in range(length))
 
         # Send email to user with new password
-        # email = request.form.get("email")
-        # info = "Your new password is" + new_password
-        # message = Message(info, recipients=[email])
-        # mail.send(message)
+        email = request.form.get("email")
+
+        if len(db.execute("SELECT * FROM users WHERE email = ?", email)) != 1:
+            return apology("email does not match or records", 403)
+
+        m_body = "Your new password is: " + new_password
+        message = Message(subject="New Password", sender="cs50microjournal@gmail.com", recipients=[email])
+        message.body = m_body
+        print(m_body)
+        mail.send(message)
         return redirect("/login")
 
 
