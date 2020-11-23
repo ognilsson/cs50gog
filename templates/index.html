@@ -5,35 +5,13 @@
 {% endblock %}
 
 {% block main %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Symbol</th>
-                <th>Name</th>
-                <th>Shares</th>
-                <th>Price</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for i in range(dim) %}
-                <tr>
-                    {% for key in rows[i] %}
-                        <td>{{ rows[i][key] }}</td>
-                    {% endfor %}
-                    <td>{{ prices[i] | usd}}</td>
-                    <td>{{ (prices[i] * rows[i]["shares"]) | usd }}</td>
-                </tr>
+    <h1>Overall Happiness</h1>
+    <form action="/" method="post">
+        <div class="form-group">
+            {% for option in activities %}
+                <input name="activity" type="checkbox" value="{{ option }}"> {{ option }}
             {% endfor %}
-            <tr>
-                <td>CASH</td>
-                <td colspan="3"></td>
-                <td> {{ cash | usd }} </td>
-            </tr>
-            <tfoot>
-                <td colspan="4"></td>
-                <td>{{ total_value | usd }}</td>
-            </tfoot>
-        </tbody>
-    </table>
+            <button class="btn btn-primary" type="submit">Show!</button>
+        </div>
+    </form>
 {% endblock %}
