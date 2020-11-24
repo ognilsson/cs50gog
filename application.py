@@ -160,7 +160,10 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
-
+        activities = db.execute("SELECT * FROM activities WHERE id = ?", session["user_id"])
+        if len(activities) != 1:
+          print("here2")
+          return  redirect("/newSurvey")
         # Redirect user to home page
         return redirect("/")
 
@@ -237,7 +240,7 @@ def register():
         else:
             db.execute("INSERT INTO users (email, hash) VALUES (?, ?)", request.form.get("email"),
                        generate_password_hash(request.form.get("password")))
-            return redirect("/login")
+            return  render_template("new_survey.html")
 
 
 def errorhandler(e):
