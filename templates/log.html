@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Log
+{% endblock %}
+
+{% block main %}
+    <h1>Log Your Day</h1>
+    <br>
+    <form action="/log" method="post">
+        <div>
+            <input class="form-control" name="date" value="{{ today }}" type="date">
+            <input class="form-control" name="score" placeholder="#" type="number" min="0" max="10">
+        </div>
+        <br>
+        <div>
+            <h3>Select today's activities:</h3>
+        </div>
+        <div class="form-group">
+            {% for option in activities %}
+                <input name="activity" type="checkbox" value="{{ option }}"> {{ option }}
+            {% endfor %}
+        </div>
+        <br>
+        <div>
+            <button class="btn btn-primary" type="submit">Log!</button>
+        </div>
+    </form>
+{% endblock %}
