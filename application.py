@@ -8,7 +8,7 @@ from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
-from datetime import datetime
+import datetime
 from pytz import timezone
 from flask_mail import Mail, Message
 import random
@@ -19,6 +19,8 @@ import matplotlib.pyplot as plt
 import base64
 
 from helpers import apology, login_required, lookup, usd
+
+ACTIVITIES = ["Soccer", "Read", "Study", "Videogames"]
 
 # Configure application
 app = Flask(__name__)
@@ -69,16 +71,14 @@ db = SQL("sqlite:///journal.db")
 @login_required
 def index():
     """Show something to the user"""
-    # User reaches route via GET
-    if request.method == "GET":
-        return render_template("index.html")
+    return render_template("index.html")
 
 
 @app.route("/overall_fig")
 @login_required
 def build_plot():
 
-    # From https://stackoverflow.com/questions/41459657/how-to-create-dynamic-plots-to-display-on-flask
+    # Partially from https://stackoverflow.com/questions/41459657/how-to-create-dynamic-plots-to-display-on-flask
     img = io.BytesIO()
 
     rows = db.execute("SELECT create_date, overall FROM happiness WHERE user_id = ?", session["user_id"])
@@ -97,6 +97,40 @@ def build_plot():
     plot_url = base64.b64encode(img.getvalue()).decode()
 
     return '<img src="data:image/png;base64,{}">'.format(plot_url)
+
+
+@app.route("/log", methods=["GET", "POST"])
+@login_required
+def log():
+    """Let the user input new data"""
+
+    # User reaches route via GET
+    if request.method == "GET":
+        time = datetime.date.today()
+        return render_template("log.html", today=time, activities=ACTIVITIES)
+
+    # User reaches route via POST (Submits form)
+    else:
+        # Check input
+        if not request.form.get("score") or not request.form.get("date"):
+            return apology("Must unput date and an overall happiness")
+
+        # Fetch input from user
+        score = request.form.get("score")
+        date = request.form.get("date")
+        activities = request.form.getlist("activity")
+
+        # Cehck activities
+        for activity in activities:
+            if activity not in ACTIVITIES:
+                return apology("Sorry, unknown activity")
+
+        # Store input
+        db.execute("INSERT INTO happiness VALUES (?, ?, ?)", session["user_id"], date, score)
+        for activity in activities:
+            db.execute("INSERT INTO activities VALUES (?, ?, ?)", session["user_id"], date, activity)
+        return redirect("/")
+
 
 
 @app.route("/login", methods=["GET", "POST"])
