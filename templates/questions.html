@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Questions
+{% endblock %}
+{% block main %}
+    <form action="/questions" method="POST"> 
+        <button class="btn-entries" name="page-btn" value="/entries">Submit</button>
+    </form>
+{% endblock %}
