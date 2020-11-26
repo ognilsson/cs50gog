@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Activities
+{% endblock %}
+{% block main %}
+    <h1>TODO: Choose activities for the day!</h1>
+
+    <form action="/activities" method="POST">
+        <button class="btn-entries" name="page-btn" value="/questions">Skip</button>
+    </form>
+{% endblock %}

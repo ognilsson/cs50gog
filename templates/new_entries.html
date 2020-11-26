@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    
+{% endblock %}
+{% block main %}
+        <h1>How do you feel today ?</h1>
+        <h1 style="color: green;"> {{ timeOfEntry }} </h1>
+        <form class="new_entries-form" action="/new_entries" method="post"> 
+                <button class="btn-emotion"name="btn-emotion" width="10%" height="10%" value=1 type="submit" ><i><img width="10%" height="10%" src="/static/emotion_icons/1.png"></img></i><h2 style="color: red;">Terrible</h2></button>
+                <button class="btn-emotion" name="btn-emotion" width="30%" height="30%" value=2 type="submit" ><i><img width="10%" height="10%" src="/static/emotion_icons/2.png"></img></i><h2 style="color: orange;">Bad</h2></button>
+                <button class="btn-emotion" name="btn-emotion" width="30%" height="30%" value=3 type="submit" ><i><img width="10%" height="10%" src="/static/emotion_icons/3.png"></img></i><h2 style="color: yellow;">Fine</h2></button>
+                <button class="btn-emotion" name="btn-emotion" width="30%" height="30%" value=4 type="submit" ><i><img width="10%" height="10%" src="/static/emotion_icons/4.png"></img></i><h2 style="color: yellowgreen;">Good</h2></button>
+                <button class="btn-emotion" name="btn-emotion" width="30%" height="30%" value=5 type="submit" ><i><img width="10%" height="10%" src="/static/emotion_icons/5.png"></img></i><h2 style="color: green;">Amazing</h2></button>
+               
+        </form>
+{% endblock %}
