@@ -10,34 +10,41 @@
         <!-- http://getbootstrap.com/docs/4.5/ -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
 
-        <!-- https://favicon.io/emoji-favicons/money-mouth-face/ -->
-        <link href="/static/favicon.ico" rel="icon">
+        <!-- https://favicon.io/emoji-favicons/money-mouth-face/
+        <link href="/static/favicon.ico" rel="icon"> -->
+        <link rel="icon" type="image/png" sizes="96x96" href="/static/favicon-96x96.png">
 
         <link href="/static/styles.css" rel="stylesheet">
 
         <!-- http://getbootstrap.com/docs/4.5/ -->
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></script>
 
-        <title>CS50 Microjournaling: {% block title %}{% endblock %}</title>
+        <title>Happy Track: {% block title %}{% endblock %}</title>
 
     </head>
 
     <body>
 
         <nav class="navbar navbar-expand-md navbar-light bg-light border">
-            <a class="navbar-brand" href="/"><span class="theme-color">CS50 Microjournaling</span></a>
+            <a class="navbar-brand" href="/">Happy Track</a>
             <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#navbar" data-toggle="collapse" type="button">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbar">
                 {% if session.user_id %}
                     <ul class="navbar-nav mr-auto mt-2">
-                        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/log">Log</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/activities">Activities</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/social">Social</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/change_password">Change Password</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                              Enteries
+                            </a>
+                            <div class="dropdown-menu">
+                              <a class="dropdown-item" href="/new_entries">New Entry</a>
+                              <a class="dropdown-item" href="/history">History</a>
+                            </div>
+                          </li>
+                        <li class="nav-item"><a class="nav-link" href="/stats">Stats</a></li>
                     </ul>
                     <ul class="navbar-nav ml-auto mt-2">
                         <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
@@ -64,7 +71,6 @@
         </main>
 
         <footer class="small text-center text-muted">
-            Copyright &#169; Oskar Nilsson, George Nageeb, Galen Lewis.
         </footer>
 
     </body>
