@@ -1,7 +1,6 @@
 import os
 import datetime
 import re
-
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session,  url_for, Response
 from flask_session import Session
@@ -200,7 +199,6 @@ def stats():
                 x[i] = ''
 
     return render_template("stats.html", title=title, max=5, labels=x, values=y)
-
 
 @app.route("/entries", methods=["GET","POST"])
 @login_required
