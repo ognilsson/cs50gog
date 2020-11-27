@@ -62,23 +62,3 @@ def lookup(symbol):
 def usd(value):
     """Format value as USD."""
     return f"${value:,.2f}"
-
-
-def back_one_day(month, day, year):
-    if day == 1:
-        if (month == 2 or month == 4 or month == 6 or month == 8 or month == 9 or month == 11):
-            month -= 1
-            day = 31
-        elif (month == 5 or month == 7 or month == 10 or month == 12):
-            month -= 1
-            day = 30
-        elif month == 3:
-            month -= 1
-            day = 28
-        else: #month == 1:
-            year -= 1
-            month = 12
-            day = 31
-    else:
-        day -= 1
-    return month, day, year
