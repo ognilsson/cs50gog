@@ -4,33 +4,76 @@
     Stats
 {% endblock %}
 {% block main %}
-<div id="LineChart"></div>
+<!--From https://blog.ruanbekker.com/blog/2017/12/14/graphing-pretty-charts-with-python-flask-and-chartjs/-->
+  <center>
+    <form action='/stats' method='get'>
+      <select name="range" id="range" onchange="this.form.submit()" method="get">
+        <option disabled selected="selected">Change Range</option>
+        <option value="7">Last Week</option>
+        <option value="30">Last Month</option>
+        <option value="356">Last Year</option>
+      </select>
+    </form>
+    <br>
+    <h1>{{ title }}</h1>
 
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <canvas id="chart" width="600" height="400"></canvas>
+    <script>
 
-<script type="text/javascript">
-// Load google charts
-google.charts.load('current', {'packages':['corechart']});
-google.charts.setOnLoadCallback(drawChart);
+      // bar chart data
+      var barData = {
+        labels : [
+          {% for item in labels %}
+            "{{ item }}",
+          {% endfor %}
+        ],
 
-// Draw the chart and set the chart values
-function drawChart() {
-  var data = google.visualization.arrayToDataTable([
-  ['Score', 'Entry'],
-  ['Work', 8],
-  ['Eat', 2],
-  ['TV', 4],
-  ['Gym', 2],
-  ['Sleep', 8]
-]);
+        datasets : [{
+          fillColor: "rgba(151,187,205,0.2)",
+          strokeColor: "rgba(151,187,205,1)",
+          pointColor: "rgba(151,187,205,1)",
+          pointStrokeColor: "#fff",
+          pointHighlightFill: "#fff",
+          pointHighlightStroke: "rgba(151,187,205,1)",
+          bezierCurve : false,
+          pointBackgroundColor: "#fff",
+          pointHoverRadius: 1,
+          data : [
+	    {% for item in values %}
+              {{ item }},
+            {% endfor %}]
+          }
+	]
+      }
 
-  // Optional; add a title and set the width and height of the chart
-  var options = {'title':'My Average Day', 'width':550, 'height':400};
+      Chart.defaults.global.animationSteps = 50;
+      Chart.defaults.global.tooltipYPadding = 16;
+      Chart.defaults.global.tooltipCornerRadius = 0;
+      Chart.defaults.global.tooltipTitleFontStyle = "normal";
+      Chart.defaults.global.tooltipFillColor = "rgba(0,0,0,0.8)";
+      Chart.defaults.global.animationEasing = "easeOutBounce";
+      Chart.defaults.global.responsive = false;
+      Chart.defaults.global.scaleLineColor = "white";
+      Chart.defaults.global.scaleFontSize = 16;
 
-  // Display the chart inside the <div> element with id="piechart"
-  var chart = new google.visualization.LineChart(document.getElementById('piechart'));
-  chart.draw(data, options);
-}
-</script>
+      // get bar chart canvas
+      var mychart = document.getElementById("chart").getContext("2d");
 
+      max = {{ max }}
+      steps = max
+      // draw bar chart
+      var LineChartDemo = new Chart(mychart).Line(barData, {
+        scaleOverride: true,
+        scaleSteps: steps,
+        scaleStepWidth: Math.ceil(max / steps),
+        scaleStartValue: 0,
+        scaleShowVerticalLines: true,
+        scaleShowGridLines : true,
+        barShowStroke : true,
+        scaleShowLabels: true,
+        bezierCurve: false,
+      });
+
+    </script>
+  </center>
 {% endblock %}
