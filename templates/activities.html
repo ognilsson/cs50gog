@@ -24,7 +24,7 @@
           {% for item in range(0,len) %}
               {% if categoryTitles[i] not in  activities[item] %}
               {% else %}
-                <input type = "checkbox" class="activity-btn" onclick="buttonFunction(this)"><i><img class="activity-img" src="{{ activities[item] }}"></img></i><hr></hr><h2  style="color:white;">{{ activityTitles[item] }}</h2></input>
+                <button class="activity-btn" onclick="buttonFunction(this)"><i><img class="activity-img" src="{{ activities[item] }}"></img></i><hr></hr><h2  style="color:white;">{{ activityTitles[item] }}</h2></button>
               {% endif %}
           {% endfor %}
           <br /><br />
