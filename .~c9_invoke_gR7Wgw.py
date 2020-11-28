@@ -72,7 +72,8 @@ def new_entries():
         hour = time.strftime("%H")
         minute = time.strftime("%M")
         db.execute("Insert into user_scores (user_id, score,day,month,year,hour,minute) values(?,?,?,?,?,?,?)",user_id,score,day,month,year,hour,minute)
-        id = db.execute("SELECT entry_id from user_scores where user_id = ? and score = ? and day = ? and month = ? and year = ? and hour = ? and minute = ?;",user_id,score,day,month,year,hour,minute)[0]["entry_id"]
+        id = db.execute("SELECT entry_id from user_scores where user_id = ? and score = ? and day = ? and month = ? and year = ? and hour = ? and minute = ?;",user_id,score,day,month,year,hour,minute)
+
         return redirect(url_for('activities',id=id))
     else:
         user_id = session["user_id"]
@@ -86,19 +87,12 @@ def new_entries():
 @app.route("/activities", methods=["GET", "POST"])
 @login_required
 def activities():
-    entryID = request.args.get("id")
-    userID = session["user_id"]
-    print("Activity Entry ID:",entryID)
+    id = request.args.get("id")
+    print("ID:",id)
     if request.method == "POST":
         postedActivities = request.form.getlist("checked-activity")
-        print(postedActivities)
-        entry=request.form["submit-activity"]
-        for activity in postedActivities:
-            res = activity.split(",")
-            activityID = int(res[0])
-            categoryID = int(res[1])
-            db.execute("Insert into activity_entry (user_id, activity_id,entry_id,category_id) values(?,?,?,?);",userID,activityID,entry,categoryID)
-        return redirect(url_for('questions',id=entry))
+        print("Checked Activities:",postedActivities)
+        return redirect("/questions")
     else:
         user_id = session["user_id"]
         preferences = db.execute("SELECT preference_id from preferences where user_id = ?;", user_id)
@@ -109,33 +103,33 @@ def activities():
         activities=[]
         activityIds=[]
         for index in range(0,len(preferences)):
-            activities.append(db.execute("SELECT category_name,activity_name,activity_id,activities.category_id from activities JOIN categories ON activities.category_id = categories.category_id where categories.category_id=?;",preferences[index]["preference_id"]))
+            activities.append(db.execute("SELECT category_name,activity_name,activity_id from activities JOIN categories ON activities.category_id = categories.category_id where categories.category_id=?;",preferences[index]["preference_id"]))
         for outerIndex in range(len(activities)):
             for item in range(0,len(activities[outerIndex])):
+                # print(outerIndex)
                 category = activities[outerIndex][item]['category_name']
                 if category not in activityCategoryTitles:
                     activityCategoryTitles.append(category)
                 activity = activities[outerIndex][item]['activity_name']
                 activityTitles.append(activity)
-                id = str(activities[outerIndex][item]['activity_id'])+","+str(activities[outerIndex][item]['category_id'])
+                id = activities[outerIndex][item]['activity_id']
                 activityIds.append(id)
+                # print(category,activity)
                 tmp = "/static/icons/"+category+"/"+activity+".png"
                 activityImagePaths.append(tmp)
+        # print(activityImagePaths)
         length = len(activityImagePaths)
-        return render_template("activities.html",len=length,activities=activityImagePaths,activityTitles=activityTitles,categoryTitles=activityCategoryTitles,categories=len(activityCategoryTitles),activityIds=activityIds,entryID=entryID)
+        return render_template("activities.html",len=length,activities=activityImagePaths,activityTitles=activityTitles,categoryTitles=activityCategoryTitles,categories=len(activityCategoryTitles),activityIds=activityIds)
 
 #Questions Method
 @app.route("/questions", methods=["GET", "POST"])
 @login_required
 def questions():
-    id = request.args.get("id")
-    print("ENTRY ID - QUESTIONS:",id)
     if request.method == "POST":
         answer1 = request.form.get("a1")
         answer2 = request.form.get("a2")
-        entry = request.form["submit-questions"]
-        db.execute("UPDATE user_scores SET answer1=? , answer2 = ? WHERE entry_id = ?;",answer1, answer2,entry)
-        return redirect("/stats")
+        db.execute("INSERT into user_scores(answer1, answer2) values(?,?);",answer1 )
+        return redirect("/history")
     else:
         length = len(db.execute("SELECT * from questions;"))
         rand1 = random.randint(1,length)
@@ -145,7 +139,7 @@ def questions():
         q1 = db.execute("SELECT question from questions where question_id=?;",rand1)[0]["question"]
         q2 = db.execute("SELECT question from questions where question_id=?;",rand2)[0]["question"]
         print(q1,"\n",q2)
-        return render_template("questions.html",q1=q1,q2=q2,entryID=id)
+        return render_template("questions.html",q1=q1,q2=q2)
 
 #History Method
 @app.route("/history", methods=["GET", "POST"])
@@ -190,7 +184,7 @@ def stats():
         formatted_date = f"{month}-{day}-{year}"
         x.append(formatted_date)
         try:
-            y.append(float(round(avg_score[0]['AVG(score)'],2)))
+            y.append(float(avg_score[0]['AVG(score)']))
         except TypeError:
             y.append(0)
 
@@ -220,31 +214,7 @@ def stats():
             else:
                 x[i] = ''
 
-    ### ACTIVITIES STATS
-    activity_count = {}
-    x2, y2 = [], []
-    user_activities = db.execute("SELECT activity_id FROM activity_entry WHERE user_id = ?", session["user_id"])
-
-    for row in user_activities:
-        if row["activity_id"] in activity_count:
-            activity_count[row["activity_id"]] += 1
-        else:
-            activity_count[row["activity_id"]] = 1
-
-    print(activity_count)
-    activity_count = dict(sorted(activity_count.items(), key=lambda item: item[1]))
-    print(activity_count)
-
-    all_activities = db.execute("SELECT activity_id, activity_name FROM activities")
-    for key in activity_count:
-        for row in all_activities:
-            if key == row["activity_id"]:
-                x2.append(row["activity_name"])
-                y2.append(int(activity_count[key]))
-
-    print(x2, y2)
-
-    return render_template("stats.html", title=title, labels=x, values=y, activities=x2, freq=y2)
+    return render_template("stats.html", title=title, max=5, labels=x, values=y)
 
 @app.route("/entries", methods=["GET","POST"])
 @login_required
@@ -394,7 +364,7 @@ def preferences():
             integerId = int(p_id)
             userID = session['user_id']
             db.execute("Insert into preferences (user_id, preference_id) values(?,?);",userID,integerId)
-        return redirect("/")
+        return render_template("index.html")
 
     else:
         return render_template("preferences.html")

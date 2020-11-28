@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Preferences
+{% endblock %}
+
+{% block main %}
+  <h1>What do you wish to keep track of? </h1>
+  <!--<form action="/action_page.php">-->
+  <!--    <input type="checkbox" id="Health" name="Health" value="Bike"><label for="Health"> Physical Health</label><br>-->
+  <!--    <input type="checkbox" id="Hobbbies" name="Hobbbies" value="Hobbbies"><label for="Hobbbies"> Hobbies</label><br>-->
+  <!--    <input type="checkbox" id="Social" name="Social" value="Social"><label for="Social"> Social Life </label><br><br>-->
+  <!--    <input type="checkbox" id="Wellness" name="Wellness" value="Wellness"><label for="Wellness"> Wellness </label><br><br>-->
+  <!--    <input type="checkbox" id="Work" name="Work" value="Work"><label for="Work"> Work </label><br><br>-->
+
+  <!--    <input type="submit" value="Submit">-->
+  <!--</form>-->
+  <script>
+    var items = document.querySelectorAll( ".preferences li");
+    var result = "";
+    // if (document.getElementById('cb1').checked) {
+    //       document.getElementById('cb1').value = "Health";
+    //     } else {
+    //       document.getElementById('cb1').value = "NULL";
+    //     }
+    //Some styling code borrowed from https://stackoverflow.com/questions/30663562/use-images-like-checkboxes
+  </script>
+  <form action="/preferences" method="post">
+  <ol name="preferences">
+  <li><input type="checkbox" name = "cb" id="cb1" value= 1 type="Submit"/>
+    <label for="cb1"><img src="/static/icons/Categories/Health.png" /><h2  style="color:white;">Physical Health</h2></label>
+  </li>
+  <li><input type="checkbox"name = "cb" id="cb2" value= 2/>
+    <label for="cb2"><img src="/static/icons/Categories/Wellness.png" /> <h2  style="color:white;">Wellness</h2> </label>
+  </li>
+  <li><input type="checkbox" name = "cb" id="cb3" value= 3/>
+    <label for="cb3"><img src="/static/icons/Categories/Hobbies.png" /><h2  style="color:white;">Hobbies</h2></label>
+  </li>
+  <li><input type="checkbox" name = "cb" id="cb4" value= 4/>
+    <label for="cb4"><img src="/static/icons/Categories/Social.png" /><h2  style="color:white;">Social Life</h2></label>
+  </li>
+   <li><input type="checkbox"name = "cb" id="cb5" value= 5/>
+    <label for="cb5"><img src="/static/icons/Categories/Work.png" /><h2  style="color:white;">Work</h2></label>
+  </li>
+</ol>
+
+   <button valuetype="submit" type="Submit">Submit</button>
+ </form>
+{% endblock %}

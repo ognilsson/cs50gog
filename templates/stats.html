@@ -6,22 +6,28 @@
 {% block main %}
 <!--From https://blog.ruanbekker.com/blog/2017/12/14/graphing-pretty-charts-with-python-flask-and-chartjs/-->
   <center>
+    <h1>{{ title }}</h1>
     <form action='/stats' method='get'>
       <select name="range" id="range" onchange="this.form.submit()" method="get">
         <option disabled selected="selected">Change Range</option>
         <option value="7">Last Week</option>
         <option value="30">Last Month</option>
-        <option value="356">Last Year</option>
+        <option value="365">Last Year</option>
       </select>
     </form>
     <br>
-    <h1>{{ title }}</h1>
-
     <canvas id="chart" width="600" height="400"></canvas>
+
+    <br>
+    <br>
+    <br>
+
+    <h1>Your favorite activities</h1>
+    <canvas id="bars" width="600" height="400"></canvas>
     <script>
 
-      // bar chart data
-      var barData = {
+      // Line chart data
+      var lineData = {
         labels : [
           {% for item in labels %}
             "{{ item }}",
@@ -29,7 +35,9 @@
         ],
 
         datasets : [{
-          fillColor: "rgba(151,187,205,0.2)",
+          label: ' Overall Happiness',
+          borderColor: "rgba(151,187,205,1)",
+          backgroundColor: "rgba(151,187,205,0.2)",
           strokeColor: "rgba(151,187,205,1)",
           pointColor: "rgba(151,187,205,1)",
           pointStrokeColor: "#fff",
@@ -37,43 +45,102 @@
           pointHighlightStroke: "rgba(151,187,205,1)",
           bezierCurve : false,
           pointBackgroundColor: "#fff",
-          pointHoverRadius: 1,
+
           data : [
-	    {% for item in values %}
+	          {% for item in values %}
               {{ item }},
             {% endfor %}]
-          }
-	]
+          }]
       }
 
       Chart.defaults.global.animationSteps = 50;
-      Chart.defaults.global.tooltipYPadding = 16;
-      Chart.defaults.global.tooltipCornerRadius = 0;
-      Chart.defaults.global.tooltipTitleFontStyle = "normal";
-      Chart.defaults.global.tooltipFillColor = "rgba(0,0,0,0.8)";
       Chart.defaults.global.animationEasing = "easeOutBounce";
       Chart.defaults.global.responsive = false;
-      Chart.defaults.global.scaleLineColor = "white";
-      Chart.defaults.global.scaleFontSize = 16;
 
-      // get bar chart canvas
+      // get line chart canvas
       var mychart = document.getElementById("chart").getContext("2d");
 
-      max = {{ max }}
-      steps = max
-      // draw bar chart
-      var LineChartDemo = new Chart(mychart).Line(barData, {
-        scaleOverride: true,
-        scaleSteps: steps,
-        scaleStepWidth: Math.ceil(max / steps),
-        scaleStartValue: 0,
-        scaleShowVerticalLines: true,
-        scaleShowGridLines : true,
-        barShowStroke : true,
-        scaleShowLabels: true,
-        bezierCurve: false,
+      // draw line chart
+      var LineChartDemo = new Chart(mychart, {
+        type: 'line',
+        data: lineData,
+        options: {
+          title:{
+            display: false,
+          },
+          tooltips: {
+              mode: 'nearest'
+          },
+          scales: {
+            xAxes: [{
+              gridLines: {
+                color: "rgba(255,255,255, 0.2)",
+              }
+            }],
+            yAxes: [{
+              ticks: {
+                beginAtZero: true,
+                steps: 5,
+                stepValue: 1,
+                max: 5
+              },
+              gridLines: {
+                color: "rgba(255,255,255, 0.2)",
+              }
+            }]
+          }
+        }
       });
 
+      // Get bar data
+      var barData = {
+        labels : [
+          {% for item in activities %}
+            "{{ item }}",
+          {% endfor %}
+        ],
+
+        datasets : [{
+          label: 'Most frequent activities',
+          backgroundColor: "rgba(255, 180, 193, 0.4)",
+
+          data : [
+	          {% for item in freq %}
+              {{ item }},
+            {% endfor %}]
+          }]
+      }
+
+      // get line chart canvas
+      var Bars = document.getElementById("bars").getContext("2d");
+
+      var plot = new Chart(Bars, {
+        type: 'bar',
+        data: barData,
+        options: {
+          title:{
+            display: false,
+          },
+          tooltips: {
+              mode: 'nearest'
+          },
+          scales: {
+            xAxes: [{
+              gridLines: {
+                color: "rgba(255,255,255, 0.2)",
+              }
+            }],
+            yAxes: [{
+              ticks: {
+                beginAtZero: true,
+              },
+              gridLines: {
+                color: "rgba(255,255,255, 0.2)",
+              }
+            }]
+          }
+        }
+      });
     </script>
   </center>
 {% endblock %}

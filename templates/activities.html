@@ -4,9 +4,34 @@
     Activities
 {% endblock %}
 {% block main %}
-    <h1>TODO: Choose activities for the day!</h1>
+   <script>
+          function buttonFunction(item) {
+              if (item.style.backgroundColor == "green")
+              {
+                  item.style.backgroundColor = "black";
+                  item.style.borderColor = "green";
+              }
+              else
+              {
+                   item.style.backgroundColor = "green";
+                   item.style.borderColor = "white";
+              }
 
-    <form action="/activities" method="POST">
-        <button class="btn-entries" name="page-btn" value="/questions">Skip</button>
-    </form>
+            }
+        </script>
+
+        <form action="/activities" method="POST">
+        {% for i in range(0,categories) %}
+            <h1>{{ categoryTitles[i] }}</h1>
+
+          {% for item in range(0,len) %}
+              {% if categoryTitles[i] not in  activities[item] %}
+              {% else %}
+                <input  class="activity-input" type = "checkbox" value="{{ activityIds[item] }}" class="activity-btn" name="checked-activity" onclick="buttonFunction(this)"><i><img class="activity-img" src="{{ activities[item] }}"></img></i><h2  style="color:white;">{{ activityTitles[item] }}</h2></input>
+              {% endif %}
+          {% endfor %}
+          <hr />
+        {% endfor %}
+        <button type="Submit" name="submit-activity" value="{{ entryID }}">Submit</button>
+        </form>
 {% endblock %}
