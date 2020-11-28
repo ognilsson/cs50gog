@@ -190,7 +190,7 @@ def stats():
         formatted_date = f"{month}-{day}-{year}"
         x.append(formatted_date)
         try:
-            y.append(float(avg_score[0]['AVG(score)']))
+            y.append(float(round(avg_score[0]['AVG(score)'],2)))
         except TypeError:
             y.append(0)
 
