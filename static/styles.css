@@ -83,22 +83,26 @@ table {
 
 }
 .activity-btn {
-    width:5ch;
-    height: 5ch;
     border-radius: 100%;
     border-color: green;
     background-color:black;
-    margin:3%;
+    margin:auto;
+
 }
 .activity-btn:hover{
     border-color: white;
 }
 .activity-img{
-    width:90%;
-    height:90%;
-    border-radius: 100%;
+    width:5%;
+    height:5%;
     background-color: black;
 }
+.activitiy-input{
+  display: inline-block;
+  float: left;
+  /*width:20%; */
+}
+
 .btn-emotion:hover{
     border-color: white;
 }
@@ -130,9 +134,10 @@ li {
   display: inline-block;
 }
 
-  input[type="checkbox"][id^="cb"] {
+ input[type="checkbox"][id^="cb"] {
   display: none;
 }
+
 
 label {
   border: 1px solid #fff;
@@ -188,4 +193,13 @@ label img {
   transform: scale(0.9);
   box-shadow: 0 0 5px #333;
   z-index: -1;
+}
+
+i{
+    width:10%;
+    height:10%;
+}
+hr{
+    color:gray;
+    font-size:10px;
 }

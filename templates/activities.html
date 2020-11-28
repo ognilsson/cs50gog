@@ -19,16 +19,19 @@
 
             }
         </script>
+
+        <form action="/activities" method="POST">
         {% for i in range(0,categories) %}
             <h1>{{ categoryTitles[i] }}</h1>
+
           {% for item in range(0,len) %}
               {% if categoryTitles[i] not in  activities[item] %}
               {% else %}
-                <button class="activity-btn" onclick="buttonFunction(this)"><i><img class="activity-img" src="{{ activities[item] }}"></img></i><hr></hr><h2  style="color:white;">{{ activityTitles[item] }}</h2></button>
+                <input  class="activity-input" type = "checkbox" value="{{ activityIds[item] }}" class="activity-btn" name="checked-activity" onclick="buttonFunction(this)"><i><img class="activity-img" src="{{ activities[item] }}"></img></i><h2  style="color:white;">{{ activityTitles[item] }}</h2></input>
               {% endif %}
           {% endfor %}
-          <br /><br />
+          <hr />
         {% endfor %}
-        <br />
-        <button type="submit">Submit</button>
+        <button type="Submit" name="submit-activity" value="{{ entryID }}">Submit</button>
+        </form>
 {% endblock %}
