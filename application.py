@@ -220,7 +220,31 @@ def stats():
             else:
                 x[i] = ''
 
-    return render_template("stats.html", title=title, max=5, labels=x, values=y)
+    ### ACTIVITIES STATS
+    activity_count = {}
+    x2, y2 = [], []
+    user_activities = db.execute("SELECT activity_id FROM activity_entry WHERE user_id = ?", session["user_id"])
+
+    for row in user_activities:
+        if row["activity_id"] in activity_count:
+            activity_count[row["activity_id"]] += 1
+        else:
+            activity_count[row["activity_id"]] = 1
+
+    print(activity_count)
+    activity_count = dict(sorted(activity_count.items(), key=lambda item: item[1]))
+    print(activity_count)
+
+    all_activities = db.execute("SELECT activity_id, activity_name FROM activities")
+    for key in activity_count:
+        for row in all_activities:
+            if key == row["activity_id"]:
+                x2.append(row["activity_name"])
+                y2.append(int(activity_count[key]))
+
+    print(x2, y2)
+
+    return render_template("stats.html", title=title, labels=x, values=y, activities=x2, freq=y2)
 
 @app.route("/entries", methods=["GET","POST"])
 @login_required
