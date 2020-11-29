@@ -24,6 +24,30 @@
 
     <h1>Your favorite activities</h1>
     <canvas id="bars" width="600" height="400"></canvas>
+
+    <br>
+    <br>
+    <br>
+
+    <h1>Activities that contribute the most to you happiness</h1>
+    <ol type="1">
+      {% for act in best %}
+        <li>{{ act }}</li>
+        <br>
+      {% endfor %}
+    </ol>
+
+    <br>
+    <br>
+    <br>
+
+    <h1>Activities that contribute the least to you happiness</h1>
+    <ol type="1">
+      {% for act in worst %}
+        <li>{{ act }}</li>
+        <br>
+      {% endfor %}
+    </ol>
     <script>
 
       // Line chart data
