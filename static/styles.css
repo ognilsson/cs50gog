@@ -228,3 +228,26 @@ hr{
     margin-right: auto;
     text-align: left;
 }
+
+
+.rankings {
+    display: inline-block;
+    text-align: left;
+}
+
+
+#ranks {
+    display: list-item;
+    text-align: left;
+    color: #fff;
+}
+
+footer {
+    margin-bottom: 5%;
+    color: #fff;
+}
+
+div.br3 {
+    margin-top: 60px;
+    margin-bottom: 60px;
+}
