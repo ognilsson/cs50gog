@@ -232,6 +232,7 @@ def stats():
             activity_count[row["activity_id"]] = 1
 
     print(activity_count)
+    # From https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
     activity_count = dict(sorted(activity_count.items(), key=lambda item: item[1]))
     print(activity_count)
 
@@ -244,7 +245,45 @@ def stats():
 
     print(x2, y2)
 
-    return render_template("stats.html", title=title, labels=x, values=y, activities=x2, freq=y2)
+    # Query for activity id's and their respective scores for that entry
+    activity_scores = db.execute("SELECT activity_id, score FROM activity_entry JOIN user_scores ON activity_entry.entry_id = user_scores.entry_id WHERE activity_entry.user_id = ?;", session["user_id"])
+
+    # Calculate the average score when an activity is entered
+    count = {}
+    totals = {}
+    for row in activity_scores:
+        if row["activity_id"] in count:
+            count[row["activity_id"]] += 1
+            totals[row["activity_id"]] += int(row["score"])
+        else:
+            count[row["activity_id"]] = 1
+            totals[row["activity_id"]] = int(row["score"])
+
+    # Calculate the average
+    for key in totals:
+        totals[key] = round(totals[key] / count[key], 2)
+
+    # Sort dictionary by their average scores
+    # From https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
+    totals = dict(sorted(totals.items(), key=lambda item: item[1]))
+
+    # Separate axis and find activity names
+    x_tmp = totals.keys()
+    # y_tmp = totals.values()
+
+    x_tmp_2 = []
+    for i in x_tmp:
+        for row in all_activities:
+            if i == row["activity_id"]:
+                x_tmp_2.append(row["activity_name"])
+
+    limit = 3
+    x_top = x_tmp_2[-limit:]
+    #y_top = y_tmp[-limit:]
+    x_bottom = x_tmp_2[:limit]
+    #y_bottom = y_tmp[:limit]
+
+    return render_template("stats.html", title=title, labels=x, values=y, activities=x2, freq=y2, best=x_top, worst=x_bottom)
 
 @app.route("/entries", methods=["GET","POST"])
 @login_required
