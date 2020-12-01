@@ -8,6 +8,8 @@ from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
+import string
+from flask_mail import Mail, Message
 
 
 from helpers import apology, login_required, lookup, back_one_day
@@ -17,6 +19,18 @@ app = Flask(__name__)
 
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+
+# Configure mail
+app.config["MAIL_DEFAULT_SENDER"] = "cs50microjournal@gmail.com"
+app.config["MAIL_USERNAME"] = "cs50microjournal@gmail.com"
+app.config["MAIL_PASSWORD"] = "HMS2020!"
+app.config["MAIL_PORT"] = 465
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
+app.config["MAIL_USE_TLS"] = False
+app.config['MAIL_USE_SSL'] = True
+
+mail = Mail(app)
 
 
 # Ensure responses aren't cached
@@ -437,6 +451,41 @@ def preferences():
 
     else:
         return render_template("preferences.html")
+
+
+@app.route("/forgot_password", methods=["GET", "POST"]) ##### Need to add function so users can change password
+def forgot_password():
+    """Sends a new password to the user"""
+
+    # User just clicked the link (reached route via GET)
+    if request.method == "GET":
+        return render_template("forgot_password.html")
+
+    # User submitted their email (Reached route via POST)
+    else:
+        # Ensure email was submitted
+        if not request.form.get("email"):
+            return apology("Must provide email", 403)
+
+        # Generate new random password
+        # From https://pynative.com/python-generate-random-string/
+        length = 8
+        letters = string.ascii_lowercase
+        new_password = ''.join(random.choice(letters) for i in range(length))
+
+        # Send email to user with new password
+        email = request.form.get("email")
+
+        if len(db.execute("SELECT * FROM users WHERE email = ?", email)) != 1:
+            return apology("email does not match or records", 403)
+
+        db.execute("UPDATE users SET hash = ? WHERE email = ?", generate_password_hash(new_password), email)
+        m_body = "Your new password is: " + new_password
+        message = Message(subject="New Password", recipients=[email])
+        message.body = m_body
+        print(m_body)
+        mail.send(message)
+        return redirect("/login")
 
 
 
