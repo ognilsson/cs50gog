@@ -22,16 +22,27 @@
 
         <form action="/activities" method="POST">
         {% for i in range(0,categories) %}
-            <h1>{{ categoryTitles[i] }}</h1>
-
-          {% for item in range(0,len) %}
-              {% if categoryTitles[i] not in  activities[item] %}
-              {% else %}
-                <input  class="activity-input" type = "checkbox" value="{{ activityIds[item] }}" class="activity-btn" name="checked-activity" onclick="buttonFunction(this)"><i><img class="activity-img" src="{{ activities[item] }}"></img></i><h2  style="color:white;">{{ activityTitles[item] }}</h2></input>
-              {% endif %}
-          {% endfor %}
+          <h1><u>{{ categoryTitles[i] }}</u></h1>
+          <ul style="display: inline-flex">
+              {% for item in range(0,len) %}
+                  {% if categoryTitles[i] not in  activities[item] %}
+                  {% else %}
+                    <!--<li>-->
+                    <!--  <input type="checkbox" class="activity-input" value="{{ activityIds[item] }}" name="checked-activity" onclick="buttonFunction(this)" id="{{ activityIds[item] }}"/>-->
+                    <!--  <label class="activity-img" for="myCheckbox1"><img src="{{ activities[item] }}"/></label>-->
+                    <!--  <label for="myCheckbox1" style="text-align: center; padding-top: 0; color: white;">{{ activityTitles[item] }}</label>-->
+                    <!--</li>-->
+                    <li style="display: inline-block;">
+                        <input  class="activity-input" type = "checkbox" value="{{ activityIds[item] }}" class="activity-btn" name="checked-activity" onclick="buttonFunction(this)" id="{{ activityIds[item] }}">
+                        <i><img class="activity-img" src="{{ activities[item] }}"></img></i>
+                        <!--<h2  style="color:white;">{{ activityTitles[item] }}</h2></input>-->
+                        <label for="{{ activityIds[item] }}" style="text-align: center; padding-top: 0; color: white; display: block; border: none">{{ activityTitles[item] }}</label>
+                    </li>
+                  {% endif %}
+              {% endfor %}
+          </ul>
           <hr />
         {% endfor %}
-        <button type="Submit" name="submit-activity" value="{{ entryID }}">Submit</button>
+        <button class="btn btn-primary" type="Submit" name="submit-activity" value="{{ entryID }}">Submit</button>
         </form>
 {% endblock %}

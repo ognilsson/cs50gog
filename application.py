@@ -8,6 +8,8 @@ from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
+import string
+from flask_mail import Mail, Message
 
 
 from helpers import apology, login_required, lookup, back_one_day
@@ -17,6 +19,18 @@ app = Flask(__name__)
 
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+
+# Configure mail
+app.config["MAIL_DEFAULT_SENDER"] = "cs50microjournal@gmail.com"
+app.config["MAIL_USERNAME"] = "cs50microjournal@gmail.com"
+app.config["MAIL_PASSWORD"] = "HMS2020!"
+app.config["MAIL_PORT"] = 465
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
+app.config["MAIL_USE_TLS"] = False
+app.config['MAIL_USE_SSL'] = True
+
+mail = Mail(app)
 
 
 # Ensure responses aren't cached
@@ -193,34 +207,81 @@ def stats():
             y.append(float(round(avg_score[0]['AVG(score)'],2)))
         except TypeError:
             y.append(0)
-
         # Moving one day back in time -- move to helpers
         month, day, year = back_one_day(month, day, year)
 
     # Reversing the lists to get them in the right order
     x.reverse()
     y.reverse()
-    #print(x)
-    #print(y)
 
-    # Setting the title and adjusting labels
+    # Setting the title
     if scope == 7:
         title = 'Happiness over the last Week'
     elif scope > 27 and scope < 32:
         title = 'Happiness over the last Month'
     else:
         title = 'Happiness over the last Year'
-        count = 0
-        # Only keeping every 10th label for displaying purposes
-        for i in range(len(x)):
-            count += 1
-            if count == 10:
-                count = 0
-                continue
-            else:
-                x[i] = ''
 
-    return render_template("stats.html", title=title, max=5, labels=x, values=y)
+
+    ### ACTIVITIES STATS
+    activity_count = {}
+    x2, y2 = [], []
+    user_activities = db.execute("SELECT activity_id FROM activity_entry WHERE user_id = ?", session["user_id"])
+
+    for row in user_activities:
+        if row["activity_id"] in activity_count:
+            activity_count[row["activity_id"]] += 1
+        else:
+            activity_count[row["activity_id"]] = 1
+
+    # From https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
+    activity_count = dict(sorted(activity_count.items(), key=lambda item: item[1]))
+
+    # Trading activity id for activity names
+    all_activities = db.execute("SELECT activity_id, activity_name FROM activities")
+    for key in activity_count:
+        for row in all_activities:
+            if key == row["activity_id"]:
+                x2.append(row["activity_name"])
+                y2.append(int(activity_count[key]))
+
+    # Query for activity id's and their respective scores for that entry
+    activity_scores = db.execute("SELECT activity_id, score FROM activity_entry JOIN user_scores ON activity_entry.entry_id = user_scores.entry_id WHERE activity_entry.user_id = ?;", session["user_id"])
+
+    # Calculate the average score when an activity is entered
+    count = {}
+    totals = {}
+    for row in activity_scores:
+        if row["activity_id"] in count:
+            count[row["activity_id"]] += 1
+            totals[row["activity_id"]] += int(row["score"])
+        else:
+            count[row["activity_id"]] = 1
+            totals[row["activity_id"]] = int(row["score"])
+
+    # Calculate the average
+    for key in totals:
+        totals[key] = round(totals[key] / count[key], 2)
+
+    # Sort dictionary by their average scores
+    # From https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
+    totals = dict(sorted(totals.items(), key=lambda item: item[1]))
+
+    # Separate axis and find activity names
+    x_tmp = totals.keys()
+    x_tmp_2 = []
+    for i in x_tmp:
+        for row in all_activities:
+            if i == row["activity_id"]:
+                x_tmp_2.append(row["activity_name"])
+
+    limit = 3
+    x_top = x_tmp_2[-limit:]
+    x_bottom = x_tmp_2[:limit]
+
+    return render_template("stats.html", title=title, labels=x, values=y, activities=x2, freq=y2, best=x_top, worst=x_bottom)
+
+
 
 @app.route("/entries", methods=["GET","POST"])
 @login_required
@@ -374,6 +435,41 @@ def preferences():
 
     else:
         return render_template("preferences.html")
+
+
+@app.route("/forgot_password", methods=["GET", "POST"]) ##### Need to add function so users can change password
+def forgot_password():
+    """Sends a new password to the user"""
+
+    # User just clicked the link (reached route via GET)
+    if request.method == "GET":
+        return render_template("forgot_password.html")
+
+    # User submitted their email (Reached route via POST)
+    else:
+        # Ensure email was submitted
+        if not request.form.get("email"):
+            return apology("Must provide email", 403)
+
+        # Generate new random password
+        # From https://pynative.com/python-generate-random-string/
+        length = 8
+        letters = string.ascii_lowercase
+        new_password = ''.join(random.choice(letters) for i in range(length))
+
+        # Send email to user with new password
+        email = request.form.get("email")
+
+        if len(db.execute("SELECT * FROM users WHERE email = ?", email)) != 1:
+            return apology("email does not match or records", 403)
+
+        db.execute("UPDATE users SET hash = ? WHERE email = ?", generate_password_hash(new_password), email)
+        m_body = "Your new password is: " + new_password
+        message = Message(subject="New Password", recipients=[email])
+        message.body = m_body
+        print(m_body)
+        mail.send(message)
+        return redirect("/login")
 
 
 
