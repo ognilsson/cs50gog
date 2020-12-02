@@ -207,32 +207,21 @@ def stats():
             y.append(float(round(avg_score[0]['AVG(score)'],2)))
         except TypeError:
             y.append(0)
-
         # Moving one day back in time -- move to helpers
         month, day, year = back_one_day(month, day, year)
 
     # Reversing the lists to get them in the right order
     x.reverse()
     y.reverse()
-    #print(x)
-    #print(y)
 
-    # Setting the title and adjusting labels
+    # Setting the title
     if scope == 7:
         title = 'Happiness over the last Week'
     elif scope > 27 and scope < 32:
         title = 'Happiness over the last Month'
     else:
         title = 'Happiness over the last Year'
-        count = 0
-        # Only keeping every 10th label for displaying purposes
-        for i in range(len(x)):
-            count += 1
-            if count == 10:
-                count = 0
-                continue
-            else:
-                x[i] = ''
+
 
     ### ACTIVITIES STATS
     activity_count = {}
@@ -245,19 +234,16 @@ def stats():
         else:
             activity_count[row["activity_id"]] = 1
 
-    print(activity_count)
     # From https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
     activity_count = dict(sorted(activity_count.items(), key=lambda item: item[1]))
-    print(activity_count)
 
+    # Trading activity id for activity names
     all_activities = db.execute("SELECT activity_id, activity_name FROM activities")
     for key in activity_count:
         for row in all_activities:
             if key == row["activity_id"]:
                 x2.append(row["activity_name"])
                 y2.append(int(activity_count[key]))
-
-    print(x2, y2)
 
     # Query for activity id's and their respective scores for that entry
     activity_scores = db.execute("SELECT activity_id, score FROM activity_entry JOIN user_scores ON activity_entry.entry_id = user_scores.entry_id WHERE activity_entry.user_id = ?;", session["user_id"])
@@ -283,8 +269,6 @@ def stats():
 
     # Separate axis and find activity names
     x_tmp = totals.keys()
-    # y_tmp = totals.values()
-
     x_tmp_2 = []
     for i in x_tmp:
         for row in all_activities:
@@ -293,11 +277,11 @@ def stats():
 
     limit = 3
     x_top = x_tmp_2[-limit:]
-    #y_top = y_tmp[-limit:]
     x_bottom = x_tmp_2[:limit]
-    #y_bottom = y_tmp[:limit]
 
     return render_template("stats.html", title=title, labels=x, values=y, activities=x2, freq=y2, best=x_top, worst=x_bottom)
+
+
 
 @app.route("/entries", methods=["GET","POST"])
 @login_required
