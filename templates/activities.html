@@ -19,10 +19,15 @@
 
             }
         </script>
-
         <form action="/activities" method="POST">
+        {% if hasNoActivities %}
+        <h1>You haven't set any preferences. Click the button below to go to the preferences page.</h1>
+        <br>
+        <button class="btn btn-primary" value="{{ entryID }}" type="Submit" name="set-preferences">Set Preferences</button>
+        {% else %}
+
         {% for i in range(0,categories) %}
-          <h1><u>{{ categoryTitles[i] }}</u></h1>
+          <h1><u>{{ categoryTitles[i] }}</u></h1><br/>
           <ul style="display: inline-flex">
               {% for item in range(0,len) %}
                   {% if categoryTitles[i] not in  activities[item] %}
@@ -44,5 +49,6 @@
           <hr />
         {% endfor %}
         <button class="btn btn-primary" type="Submit" name="submit-activity" value="{{ entryID }}">Submit</button>
+        {% endif %}
         </form>
 {% endblock %}

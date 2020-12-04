@@ -87,12 +87,6 @@ def new_entries():
         minute = time.strftime("%M")
         db.execute("Insert into user_scores (user_id, score,day,month,year,hour,minute) values(?,?,?,?,?,?,?)",user_id,score,day,month,year,hour,minute)
         id = db.execute("SELECT entry_id from user_scores where user_id = ? and score = ? and day = ? and month = ? and year = ? and hour = ? and minute = ?;",user_id,score,day,month,year,hour,minute)[0]["entry_id"]
-        preferences = db.execute("SELECT preference_id from preferences where user_id = ?;", user_id)
-        if len(preferences) == 0:
-            i=1
-            while(i < 6):
-                db.execute("Insert into preferences(user_id, preference_id) values(?,?);",user_id,i)
-                i += 1
         return redirect(url_for('activities',id=id))
     else:
         user_id = session["user_id"]
@@ -120,8 +114,9 @@ def activities():
             db.execute("Insert into activity_entry (user_id, activity_id,entry_id,category_id) values(?,?,?,?);",userID,activityID,entry,categoryID)
         return redirect(url_for('questions',id=entry))
     else:
-        # user_id = session["user_id"]
-        preferences = db.execute("SELECT preference_id from preferences where user_id = ?;", userID)
+        user_id = session["user_id"]
+        preferences = db.execute("SELECT preference_id from preferences where user_id = ?;", user_id)
+        print(preferences)
         activityImagePaths=[]
         activityCategoryTitles=[]
         activityTitles = []
@@ -428,19 +423,17 @@ def register():
 @app.route("/preferences", methods=["GET", "POST"])
 @login_required
 def preferences():
-    userID = session['user_id']
+    #THIS LINE DOESNT WORK
     if request.method == "POST":
         preferences = request.form.getlist('cb')
         for preference in preferences:
             p_id = preference.replace('/','')
             integerId = int(p_id)
+            userID = session['user_id']
             db.execute("Insert into preferences (user_id, preference_id) values(?,?);",userID,integerId)
         return redirect("/")
 
     else:
-        if request.args.get("hasNoPreferences"):
-            return render_template("preferences.html",hasNoPreferences=True,id=request.args.get(id))
-        db.execute("DELETE FROM preferences WHERE user_id=?",userID)
         return render_template("preferences.html")
 
 
@@ -488,46 +481,36 @@ def habits():
         buttonValue = request.form["btn-habit"]
         selectedActivity = request.form.get("selected-activity")
         currentlySelectedActivity = db.execute("SELECT activity_id from activities where activity_name = ?;",selectedActivity)
+        print(currentlySelectedActivity)
         if buttonValue == "Commit":
-            if len(currentlySelectedActivity) == 0:
-                missingActivity="Please select an activity from the list of activities!"
-                return render_template("habits.html", activities=activities , hasActiveHabit=False,hasNotSelectedActivity=True,alertMessage=missingActivity)
-            # if len(check) == 1:
-            #     failureAlert = "Please finish developing on your current habit !"
-            #     return render_template("habits.html",activities=activities,hasActiveHabit=True,alertMessage=failureAlert,isFailure=True)
-            # print(currentlySelectedActivity)
+            if len(check) == 1:
+                failureAlert = "Please finish developing on your current habit !"
+                return render_template("habits.html",activities=activities,hasActiveHabit=True,alertMessage=failureAlert,isFailure=True)
+            print(currentlySelectedActivity)
             db.execute("INSERT into habits(user_id,activity_id,progress) values(?,?,?);",user_id,currentlySelectedActivity[0]["activity_id"],1)
-            currentHabit = db.execute("Select activity_name from activities where activity_id =?",currentlySelectedActivity[0]["activity_id"])
-            progress=1
-            currentProgress = round(((progress / 18)*100),2)
-            return render_template("habits.html",activities=activities,hasActiveHabit=True,formattedProgress=currentProgress,progress=progress,currentHabit=currentHabit[0]["activity_name"])
+            return render_template("habits.html",activities=activities,hasActiveHabit=True,progress=1)
         elif buttonValue == "Update":
             progress = int(check[0]["progress"])
+            currentHabit = db.execute("Select activity_name from activities where activity_id =?",check[0]["activity_id"])
+            print(currentHabit)
             print(progress)
             if progress+1 == 18:
                successMessage = "Congratulations on developing a new habit!"
                db.execute("DELETE from habits where user_id = ?;", user_id)
-               return render_template("habits.html",activities=activities,hasGainedHabit = True,hasActiveHabit=False, alertMessage = successMessage)
+               return render_template("habits.html",activities=activities,hasGainedHabit = True, alertMessage = successMessage)
             else:
                 progress = progress + 1
                 db.execute("UPDATE habits set progress = ? WHERE activity_id = ? and user_id = ?;",progress, check[0]["activity_id"], user_id)
                 # return render_template("habits.html", )
-                return redirect(url_for('habits',hasActiveHabit=True))
-        else:
-            db.execute("DELETE from habits where user_id=?;",user_id)
-            deleteMessage = "Your current habit has been deleted!"
-            return render_template("habits.html",activities=activities,hasActiveHabit=False,alertMessage=deleteMessage,hasDeletedHabit=True)
+                return redirect(url_for('habits'))
     else:
         # print("Length: ",len(check))
         if len(check) == 1:
-            habitID = check[0]["activity_id"]
-            currentHabit = db.execute("Select activity_name from activities where activity_id =?",habitID)
-            progress = check[0]["progress"]
-            currentProgress = round(((progress / 18)*100),2)
-            return render_template("habits.html", activities=activities , hasActiveHabit=True,formattedProgress=currentProgress,progress=progress,currentHabit=currentHabit[0]["activity_name"])
+            progress = (check[0]["progress"] / 18) * 100
+            currentProgress = round(progress,2)
+            return render_template("habits.html", activities=activities , hasActiveHabit=True,progress=currentProgress)
         else:
             return render_template("habits.html", activities=activities , hasActiveHabit=False)
-    # Progress Circle Reference: https://jsfiddle.net/mvc6jkd2/
 
 def errorhandler(e):
     """Handle error"""

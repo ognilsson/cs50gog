@@ -1,14 +1,92 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Log In
+
 {% endblock %}
 
 {% block main %}
-    <form action="/habits" method="post">
-        <div class="form-group">
-            <input autocomplete="off" autofocus class="form-control" name="email" placeholder="Email" type="email">
+<script>
+    $(function() {
+
+  $(".progress").each(function() {
+
+    var value = $(this).attr('data-value');
+    var left = $(this).find('.progress-left .progress-bar');
+    var right = $(this).find('.progress-right .progress-bar');
+
+    if (value > 0) {
+      if (value <= 50) {
+        right.css('transform', 'rotate(' + percentageToDegrees(value) + 'deg)')
+      } else {
+        right.css('transform', 'rotate(180deg)')
+        left.css('transform', 'rotate(' + percentageToDegrees(value - 50) + 'deg)')
+      }
+    }
+
+  })
+
+  function percentageToDegrees(percentage) {
+
+    return percentage / 100 * 360
+
+  }
+
+});
+</script>
+<form action="/habits" method="post">
+{% if hasNotSelectedActivity %}
+    <div class="alert alert-info border text-center" role="alert">
+        {{ alertMessage }}
+    </div>
+{% endif %}
+{% if hasDeletedHabit %}
+    <div class="alert alert-warning border text-center" role="alert">
+        {{ alertMessage }}
+    </div>
+{% endif %}
+
+{% if hasGainedHabit %}
+    <div class="alert alert-success border text-center" role="alert">
+        {{ alertMessage }}
+    </div>
+{% endif %}
+{% if hasActiveHabit %}
+<div class="current-habit">
+  <div class="Progress">
+        <h2 class="habit-title">Habit Progress: {{ currentHabit }}</h2>
+        <br>
+        <!-- Progress bar 1 -->
+        <div>
+          <div class="progress mx-auto" data-value='{{ formattedProgress }}'>
+          <span class="progress-left">
+                        <span class="progress-bar border-primary"></span>
+          </span>
+          <span class="progress-right">
+                        <span class="progress-bar border-primary"></span>
+          </span>
+          <div class="progress-value w-100 h-100 rounded-circle d-flex align-items-center justify-content-center">
+            <div class="progress-text">{{ progress }}/18<sup class="small"></sup></div>
+          </div>
         </div>
-        <button class="btn btn-primary" type="submit">Send Email</button>
-    </form>
+        <br /><br />
+        <button class="btn btn-primary" value="Update" name="btn-habit" type="submit">Update</button>
+        <button class="btn btn-primary" value="Cancel" name="btn-habit" type="submit">Cancel</button>
+</div>
+{% else %}
+ <h1>Building a habit takes 18 days of consistent commitment! If you are ready for the challenge pick a habit:</h1>
+  <h2>Which Habit would you like to build?</h2>
+  <select class="form-control" name="selected-activity">
+                <option disabled="" selected="" value="">Activity</option>
+                     {%for activity in activities%}
+                        <option name="selection">{{ activity["activity_name"] }}</option>
+                     {%endfor%}
+            </select>
+            <br /><br />
+        <button class="btn btn-primary" value="Commit" name="btn-habit" type="submit">Commit</button>
+{% endif %}
+</form>
+
 {% endblock %}
+
+
+<!--# Progress Circle Reference: https://jsfiddle.net/mvc6jkd2/-->
