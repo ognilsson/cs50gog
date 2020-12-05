@@ -482,8 +482,12 @@ def forgot_password():
 @login_required
 def habits():
     user_id = session["user_id"]
-    check = db.execute("Select activity_id,progress from habits where user_id=?;",user_id)
+    check = db.execute("Select activity_id,progress,day,month,year from habits where user_id=?;",user_id)
     activities = db.execute("Select activity_name,activity_id from activities;")
+    time  = datetime.datetime.now().astimezone()
+    currentDay = time.strftime("%d")
+    currentMonth = time.strftime("%m")
+    currentYear = time.strftime("%Y")
     if request.method == "POST":
         buttonValue = request.form["btn-habit"]
         selectedActivity = request.form.get("selected-activity")
@@ -496,11 +500,12 @@ def habits():
             #     failureAlert = "Please finish developing on your current habit !"
             #     return render_template("habits.html",activities=activities,hasActiveHabit=True,alertMessage=failureAlert,isFailure=True)
             # print(currentlySelectedActivity)
-            db.execute("INSERT into habits(user_id,activity_id,progress) values(?,?,?);",user_id,currentlySelectedActivity[0]["activity_id"],1)
+            db.execute("INSERT into habits(user_id,activity_id,progress,day,month,year) values(?,?,?,?,?,?);",user_id,currentlySelectedActivity[0]["activity_id"],1,currentDay,currentMonth,currentYear)
             currentHabit = db.execute("Select activity_name from activities where activity_id =?",currentlySelectedActivity[0]["activity_id"])
             progress=1
             currentProgress = round(((progress / 18)*100),2)
-            return render_template("habits.html",activities=activities,hasActiveHabit=True,formattedProgress=currentProgress,progress=progress,currentHabit=currentHabit[0]["activity_name"])
+            updateMessage = "Habit progress has been recorded. Come back tomorrow to log progress update!"
+            return render_template("habits.html",activities=activities,hasActiveHabit=True,formattedProgress=currentProgress,progress=progress,currentHabit=currentHabit[0]["activity_name"],isReadyToUpdateHabit=False,alertMessaage=updateMessage,hasBeenUpdated=True)
         elif buttonValue == "Update":
             progress = int(check[0]["progress"])
             print(progress)
@@ -510,9 +515,10 @@ def habits():
                return render_template("habits.html",activities=activities,hasGainedHabit = True,hasActiveHabit=False, alertMessage = successMessage)
             else:
                 progress = progress + 1
-                db.execute("UPDATE habits set progress = ? WHERE activity_id = ? and user_id = ?;",progress, check[0]["activity_id"], user_id)
+                db.execute("UPDATE habits SET progress=?, day=?, month=?, year=? WHERE activity_id=? and user_id=?;",progress,int(currentDay),int(currentMonth),int(currentYear),check[0]["activity_id"], user_id)
                 # return render_template("habits.html", )
-                return redirect(url_for('habits',hasActiveHabit=True))
+                updateMessage = "Habit progress has been recorded. Come back tomorrow to log progress update!"
+                return redirect(url_for('habits',hasActiveHabit=True,isReadyToUpdateHabit=False,hasBeenUpdated=True,alertMessaage=updateMessage))
         else:
             db.execute("DELETE from habits where user_id=?;",user_id)
             deleteMessage = "Your current habit has been deleted!"
@@ -524,11 +530,22 @@ def habits():
             currentHabit = db.execute("Select activity_name from activities where activity_id =?",habitID)
             progress = check[0]["progress"]
             currentProgress = round(((progress / 18)*100),2)
-            return render_template("habits.html", activities=activities , hasActiveHabit=True,formattedProgress=currentProgress,progress=progress,currentHabit=currentHabit[0]["activity_name"])
+            if int(currentDay) == check[0]["day"] and int(currentMonth) == check[0]["month"] and int(currentYear) == check[0]["year"]:
+                updateMessage = "Habit progress has already been recorded. Come back tomorrow to log progress update!"
+                return render_template("habits.html", activities=activities , hasActiveHabit=True,formattedProgress=currentProgress,progress=progress,currentHabit=currentHabit[0]["activity_name"],isReadyToUpdateHabit=False,hasBeenUpdated=True,alertMessaage=updateMessage)
+            return render_template("habits.html", activities=activities , hasActiveHabit=True,formattedProgress=currentProgress,progress=progress,currentHabit=currentHabit[0]["activity_name"],isReadyToUpdateHabit=True)
         else:
             return render_template("habits.html", activities=activities , hasActiveHabit=False)
     # Progress Circle Reference: https://jsfiddle.net/mvc6jkd2/
 
+
+@app.route("/social", methods=["GET", "POST"])
+@login_required
+def social():
+    if request.method == "POST":
+        return render_template("social.html")
+    else:
+        return render_template("social.html")
 def errorhandler(e):
     """Handle error"""
     if not isinstance(e, HTTPException):

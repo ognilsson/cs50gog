@@ -50,6 +50,11 @@
         {{ alertMessage }}
     </div>
 {% endif %}
+{% if hasBeenUpdated %}
+         <div class="alert alert-info border text-center" role="alert">
+            {{ alertMessaage }}
+        </div>
+{% endif %}
 {% if hasActiveHabit %}
 <div class="current-habit">
   <div class="Progress">
@@ -69,7 +74,9 @@
           </div>
         </div>
         <br /><br />
+        {% if isReadyToUpdateHabit %}
         <button class="btn btn-primary" value="Update" name="btn-habit" type="submit">Update</button>
+        {% endif %}
         <button class="btn btn-primary" value="Cancel" name="btn-habit" type="submit">Cancel</button>
 </div>
 {% else %}
