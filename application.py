@@ -149,7 +149,7 @@ def questions():
         answer2 = request.form.get("a2")
         entry = request.form["submit-questions"]
         db.execute("UPDATE user_scores SET answer1=? , answer2 = ? WHERE entry_id = ?;",answer1, answer2,entry)
-        return redirect("/stats")
+        return redirect("/sleep")
     else:
         length = len(db.execute("SELECT * from questions;"))
         rand1 = random.randint(1,length)
@@ -161,20 +161,13 @@ def questions():
         print(q1,"\n",q2)
         return render_template("questions.html",q1=q1,q2=q2,entryID=id)
 
-#History Method
-@app.route("/history", methods=["GET", "POST"])
-@login_required
-def history():
-    if request.method == "POST":
-        return redirect("/")
-    else:
-        return render_template("history.html")
+
 
 @app.route("/stats", methods=["GET", "POST"])
 @login_required
 def stats():
     """
-    Displays the perosnal statistics for the user
+    Displays the personal statistics for the user
     """
     user_id = session["user_id"]
     time  = datetime.datetime.now().astimezone()
@@ -426,15 +419,18 @@ def preferences():
     #THIS LINE DOESNT WORK
     if request.method == "POST":
         preferences = request.form.getlist('cb')
+        print(preferences)
         for preference in preferences:
             p_id = preference.replace('/','')
             integerId = int(p_id)
             userID = session['user_id']
             db.execute("Insert into preferences (user_id, preference_id) values(?,?);",userID,integerId)
-        return redirect("/")
+        return redirect("/activities")
 
     else:
-        return render_template("preferences.html")
+        user_id = session['user_id']
+        currentPrefs = db.execute("SELECT user_id, preference_id from preferences where user_id = ?;",user_id)
+        return render_template("preferences.html", currentPrefs=currentPrefs)
 
 
 @app.route("/forgot_password", methods=["GET", "POST"]) ##### Need to add function so users can change password
@@ -472,6 +468,37 @@ def forgot_password():
         return redirect("/login")
 
 
+@app.route("/sleep", methods=["GET","POST"])
+@login_required
+def sleep():
+    if request.method == "POST":
+        time  = datetime.datetime.now().astimezone()
+        user_id = session["user_id"]
+        hours = request.form["hours"]
+        day = time.strftime("%d")
+        month = time.strftime("%m")
+        year = time.strftime("%Y")
+        hour = time.strftime("%H")
+        minute = time.strftime("%M")
+        db.execute("Insert into sleep (user_id, hours,day,month,year,hour,minute) values(?,?,?,?,?,?,?)",user_id,hours,day,month,year,hour,minute)
+        return redirect("/stats")
+    else:
+        return render_template("sleep.html")
+
+
+        #History Method
+@app.route("/history", methods=["GET", "POST"])
+@login_required
+def history():
+    if request.method == "POST":
+        user_id = session["user_id"]
+        print(request.form.get("pickedDate"))
+        selectedDate=request.form.get("pickedDate")
+        month_selected, day_selected, year_selected = selectedDate.split('/')
+        history = db.execute("SELECT score, day, month, year, hour, minute from user_scores where user_id = ? and month= ? and day= ? and year= ?;",user_id, month_selected, day_selected, year_selected)
+        return render_template("history.html", history=history)
+    else:
+        return render_template("history.html")
 
 def errorhandler(e):
     """Handle error"""

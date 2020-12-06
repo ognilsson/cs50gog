@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Log In
+{% endblock %}
+
+{% block main %}
+<h1>How many hours did you sleep last night?</h1>
+<p class="sleep">Drag the slider to display the value.</p>
+<form class="range-field" action="/sleep" method="POST">
+<div class="slidecontainer">
+  <input type="range" min="0" max="16" value="8" name="hours" class="slider" id="myRange">
+  <p></p>
+  <p class="sleep">Hours Slept: <span id="demo"></span></p>
+</div>
+<button valuetype="submit" type="Submit">Submit</button>
+</form>
+
+<script>
+var slider = document.getElementById("myRange");
+var output = document.getElementById("demo");
+output.innerHTML = slider.value;
+
+slider.oninput = function() {
+  output.innerHTML = this.value;
+}
+</script>
+{% endblock %}
