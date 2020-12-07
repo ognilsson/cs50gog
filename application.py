@@ -168,13 +168,12 @@ def questions():
 
 
 
-@app.route("/stats", methods=["GET", "POST"])
+@app.route("/stats")
 @login_required
 def stats():
     """
-    Displays the personal statistics for the user
+    Displays the personal happiness statistics for the user
     """
-    user_id = session["user_id"]
     time  = datetime.datetime.now().astimezone()
     day = int(time.strftime("%-d"))
     month = int(time.strftime("%-m"))
@@ -220,8 +219,15 @@ def stats():
     else:
         title = 'Happiness over the last Year'
 
+    return render_template("stats.html", title=title, labels=x, values=y)
 
-    ### ACTIVITIES STATS
+
+@app.route("/activity_stats")
+@login_required
+def activity_stats():
+    """
+    Shows activity statistics for the user
+    """
     activity_count = {}
     x2, y2 = [], []
     user_activities = db.execute("SELECT activity_id FROM activity_entry WHERE user_id = ?", session["user_id"])
@@ -277,8 +283,61 @@ def stats():
     x_top = x_tmp_2[-limit:]
     x_bottom = x_tmp_2[:limit]
 
-    return render_template("stats.html", title=title, labels=x, values=y, activities=x2, freq=y2, best=x_top, worst=x_bottom)
+    return render_template("activity_stats.html", activities=x2, freq=y2, best=x_top, worst=x_bottom)
 
+
+@app.route("/sleep_stats")
+@login_required
+def sleep_stats():
+    """
+    Displays the personal sleep statistics for the user
+    """
+    time  = datetime.datetime.now().astimezone()
+    day = int(time.strftime("%-d"))
+    month = int(time.strftime("%-m"))
+    year = int(time.strftime("%Y"))
+
+    try:
+        scope = int(request.args.get("range"))
+    except TypeError:
+        scope = 7
+
+    print(scope, type(scope))
+    # Adjusting for difference in days in a month (Getting scores up until the same date a month before)
+    if scope == 30:
+        if month == 3:
+            scope = 28
+        elif (month == 1 or month == 2 or month == 4 or month == 6 or month == 8 or month == 9 or month == 11):
+            scope = 31
+
+    x = []
+    y = []
+
+    # Find the average scores of the last 7 days individually and append them to x, and y
+    for i in range(scope):
+        avg_sleep = db.execute("SELECT AVG(hours) FROM sleep WHERE user_id = ? AND Month = ? AND Day = ? AND Year = ?", session["user_id"], month, day, year)
+        formatted_date = f"{month}-{day}-{year}"
+        x.append(formatted_date)
+        try:
+            y.append(float(round(avg_sleep[0]['AVG(hours)'],2)))
+        except TypeError:
+            y.append(0)
+        # Moving one day back in time -- move to helpers
+        month, day, year = back_one_day(month, day, year)
+
+    # Reversing the lists to get them in the right order
+    x.reverse()
+    y.reverse()
+
+    # Setting the title
+    if scope == 7:
+        title = 'Sleep over the last Week'
+    elif scope > 27 and scope < 32:
+        title = 'Sleep over the last Month'
+    else:
+        title = 'Sleep over the last Year'
+
+    return render_template("sleep_stats.html", title=title, labels=x, values=y)
 
 
 @app.route("/entries", methods=["GET","POST"])
@@ -429,7 +488,7 @@ def preferences():
             p_id = preference.replace('/','')
             integerId = int(p_id)
             db.execute("Insert into preferences (user_id, preference_id) values(?,?);",userID,integerId)
-        return redirect("/activities")
+        return redirect("/")
 
     else:
         if request.args.get("hasNoPreferences"):
@@ -564,13 +623,68 @@ def history():
     else:
         return render_template("history.html")
 
-@app.route("/social", methods=["GET", "POST"])
+@app.route("/social")
 @login_required
 def social():
-    if request.method == "POST":
-        return render_template("social.html")
-    else:
-        return render_template("social.html")
+    """
+    Displays what other users do to inspire users
+    """
+    activity_count = {}
+    x2, y2 = [], []
+    activities = db.execute("SELECT activity_id FROM activity_entry")
+
+    for row in activities:
+        if row["activity_id"] in activity_count:
+            activity_count[row["activity_id"]] += 1
+        else:
+            activity_count[row["activity_id"]] = 1
+
+    # From https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
+    activity_count = dict(sorted(activity_count.items(), key=lambda item: item[1]))
+
+    # Trading activity id for activity names
+    all_activities = db.execute("SELECT activity_id, activity_name FROM activities")
+    for key in activity_count:
+        for row in all_activities:
+            if key == row["activity_id"]:
+                x2.append(row["activity_name"])
+                y2.append(int(activity_count[key]))
+
+    # Query for activity id's and their respective scores for that entry
+    activity_scores = db.execute("SELECT activity_id, score FROM activity_entry JOIN user_scores ON activity_entry.entry_id = user_scores.entry_id")
+
+    # Calculate the average score when an activity is entered
+    count = {}
+    totals = {}
+    for row in activity_scores:
+        if row["activity_id"] in count:
+            count[row["activity_id"]] += 1
+            totals[row["activity_id"]] += int(row["score"])
+        else:
+            count[row["activity_id"]] = 1
+            totals[row["activity_id"]] = int(row["score"])
+
+    # Calculate the average
+    for key in totals:
+        totals[key] = round(totals[key] / count[key], 2)
+
+    # Sort dictionary by their average scores
+    # From https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
+    totals = dict(sorted(totals.items(), key=lambda item: item[1]))
+
+    # Separate axis and find activity names
+    x_tmp = totals.keys()
+    x_tmp_2 = []
+    for i in x_tmp:
+        for row in all_activities:
+            if i == row["activity_id"]:
+                x_tmp_2.append(row["activity_name"])
+
+    limit = 3
+    x_top = x_tmp_2[-limit:]
+    x_bottom = x_tmp_2[:limit]
+
+    return render_template("social.html", activities=x2, freq=y2, best=x_top, worst=x_bottom)
 
 
 def errorhandler(e):

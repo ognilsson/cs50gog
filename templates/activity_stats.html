@@ -1,16 +1,16 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Social
+    Activity Stats
 {% endblock %}
 {% block main %}
   <center>
-    <h1>People's favorite activities</h1>
+    <h1>Your favorite activities</h1>
     <canvas id="bars" width="600" height="400"></canvas>
 
     <div class="br3"></div>
 
-    <h1>Activities that contribute the most to people's happiness</h1>
+    <h1>Activities that contribute the most to you happiness</h1>
     <ol type="1" class="rankings">
       {% for act in best %}
         <li id="ranks">{{ act }}</li>
@@ -20,7 +20,7 @@
 
     <div class="br3"></div>
 
-    <h1>Activities that contribute the least to people's happiness</h1>
+    <h1>Activities that contribute the least to you happiness</h1>
     <ol type="1" class="rankings">
       {% for act in worst %}
         <li id="ranks">{{ act }}</li>
@@ -28,7 +28,7 @@
       {% endfor %}
     </ol>
     <div class="br3"></div>
-    <footer class="text-muted" style="margin-bottom: 0;">**Based on Happy Track user's input**</footer>
+    <footer class="text-muted" style="margin-bottom: 0;">**Improve data accuracy with more entries**</footer>
     <script>
       // From https://blog.ruanbekker.com/blog/2017/12/14/graphing-pretty-charts-with-python-flask-and-chartjs/
       Chart.defaults.global.animationSteps = 50;
