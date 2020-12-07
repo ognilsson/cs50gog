@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    History
+{% endblock %}
+
+{% block main %}
+
+<h1>Click on a date to see your activity history for that day</h1>
+<div class="history">
+<form action="/history" enctype='multipart/form-data' method="POST">
+<div id="datepicker"/>
+<input type="hidden" name="pickedDate" />
+</form>
+</div>
+<table class="table table-striped">
+        <thead>
+            <tr class="history_scores">
+                <th>Date / Time </th>
+                <th>Happiness Score</th>
+            </tr>
+        </thead>
+        <tbody>
+{% for history in history %}
+                <tr class="history_scores">
+                    <td>{{history.Month}}/{{history.Day}}/{{history.Year}}  {{history.Hour}}:{{history.Minute}}</td>
+                    <td>{{history.score}}</td>
+                </tr>
+{% endfor   %}
+   <script>
+     $(function() {
+		$('#datepicker').datepicker({
+			autoSize: true,
+			onSelect: function (dateText, inst) {
+			    $('input[name=pickedDate]').val(dateText);
+				$(this).parent('form').submit();
+			}
+		})
+     })
+   </script>
+{% endblock %}
