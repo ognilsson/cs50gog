@@ -247,7 +247,7 @@ footer {
     color: #fff;
 }
 
-div.br3 {
+.br3 {
     margin-top: 60px;
     margin-bottom: 60px;
 }
@@ -381,4 +381,18 @@ div.br3 {
     color:white;
     font-size:x-large;
     font-weight:bold;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  border:none;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
