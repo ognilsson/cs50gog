@@ -3,6 +3,43 @@
 {% block title %}
     History
 {% endblock %}
+
 {% block main %}
 
+    <h1>Click on a date to see your activity history for that day</h1>
+    <hr>
+    <div class="history">
+        <form action="/history" enctype='multipart/form-data' method="POST">
+            <div id="datepicker"/>
+            <input id="datepicker" type="date" name="pickedDate" />
+            <button class="btn btn-primary" type="submit">Choose date</button>
+        </form>
+    </div>
+    <div class="br3"></div>
+    <table class="table table-striped">
+            <thead>
+                <tr class="history_scores">
+                    <th>Date / Time </th>
+                    <th>Happiness Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in history %}
+                    <tr class="history_scores">
+                        <td>{{ i["Month"] }}/{{ i["Day"] }}/{{ i["Year"] }} – {{ i["Hour"] }}:{{ i["Minute"] }}</td>
+                        <td>{{ i["score"] }}</td>
+                    </tr>
+                {% endfor   %}
+    </table>
+       <script>
+         $(function() {
+    		$('#datepicker').datepicker({
+    			autoSize: true,
+    			onSelect: function (dateText, inst) {
+    			    $('input[name=pickedDate]').val(dateText);
+    				$(this).parent('form').submit();
+    			}
+    		})
+         })
+       </script>
 {% endblock %}

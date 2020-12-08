@@ -62,13 +62,11 @@ alertMessage = ""
 @login_required
 def index():
     user_id = session["user_id"]
-    # activities = [["Exercise", "Eat Healthy", "Drink Water" , "Yoga", "Sleep Early"],
-    # ["Give", "Meditate", "Music" , "Podcast", "Pray", "Relax", "Walk"],["Gaming", "Movies", "Reading" , "Woodworking"],["Date", "Family", "Friends" , "Party", "Video Chat"]
-    # ,["Cleaning", "Coding", "Exam" , "Laundry", "Meeting", "Shopping", "Study"]]
-    # for item in range(0,len(activities)):
-    #     for items in activities[item]:
-    #         db.execute("INSERT into activities(activity_name, category_id) values(?,?);", items,item+1)
-    return render_template("index.html")
+    tips= db.execute("SELECT tip from tips t, preferences p where p.user_id= ? and p.preference_id = t.category_id;",user_id)
+    print(tips)
+    if not tips:
+       tips= db.execute("SELECT tip t from tips;")
+    return render_template("index.html", tips=tips)
 
 
 @app.route("/new_entries", methods=["GET", "POST"])
@@ -617,7 +615,7 @@ def history():
         user_id = session["user_id"]
         print(request.form.get("pickedDate"))
         selectedDate=request.form.get("pickedDate")
-        month_selected, day_selected, year_selected = selectedDate.split('/')
+        year_selected, month_selected, day_selected = selectedDate.split('-')
         history = db.execute("SELECT score, day, month, year, hour, minute from user_scores where user_id = ? and month= ? and day= ? and year= ?;",user_id, month_selected, day_selected, year_selected)
         return render_template("history.html", history=history)
     else:
