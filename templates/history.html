@@ -21,6 +21,8 @@
                 <tr class="history_scores">
                     <th>Date / Time </th>
                     <th>Happiness Score</th>
+                    <th>Answer 1</th>
+                    <th>Answer 2</th>
                 </tr>
             </thead>
             <tbody>
@@ -28,6 +30,8 @@
                     <tr class="history_scores">
                         <td>{{ i["Month"] }}/{{ i["Day"] }}/{{ i["Year"] }} – {{ i["Hour"] }}:{{ i["Minute"] }}</td>
                         <td>{{ i["score"] }}</td>
+                        <td>{{ i["answer1"] }}</td>
+                        <td>{{ i["answer2"] }}</td>
                     </tr>
                 {% endfor   %}
     </table>

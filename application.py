@@ -481,7 +481,7 @@ def preferences():
     userID = session['user_id']
     if request.method == "POST":
         preferences = request.form.getlist('cb')
-        print(preferences)
+        db.execute("DELETE FROM preferences WHERE user_id=?",userID)
         for preference in preferences:
             p_id = preference.replace('/','')
             integerId = int(p_id)
@@ -491,7 +491,6 @@ def preferences():
     else:
         if request.args.get("hasNoPreferences"):
             return render_template("preferences.html",hasNoPreferences=True,id=request.args.get(id))
-        db.execute("DELETE FROM preferences WHERE user_id=?",userID)
         return render_template("preferences.html")
 
 
@@ -607,7 +606,7 @@ def sleep():
         return render_template("sleep.html")
 
 
-        #History Method
+#History Method
 @app.route("/history", methods=["GET", "POST"])
 @login_required
 def history():
@@ -616,10 +615,11 @@ def history():
         print(request.form.get("pickedDate"))
         selectedDate=request.form.get("pickedDate")
         year_selected, month_selected, day_selected = selectedDate.split('-')
-        history = db.execute("SELECT score, day, month, year, hour, minute from user_scores where user_id = ? and month= ? and day= ? and year= ?;",user_id, month_selected, day_selected, year_selected)
+        history = db.execute("SELECT score, answer1, answer2, day, month, year, hour, minute from user_scores where user_id = ? and month= ? and day= ? and year= ?;",user_id, month_selected, day_selected, year_selected)
         return render_template("history.html", history=history)
     else:
         return render_template("history.html")
+
 
 @app.route("/social")
 @login_required
