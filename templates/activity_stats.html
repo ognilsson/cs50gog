@@ -11,22 +11,43 @@
     <div class="br3"></div>
 
     <h1>Activities that contribute the most to you happiness</h1>
-    <ol type="1" class="rankings">
-      {% for act in best %}
-        <li id="ranks">{{ act }}</li>
-        <br>
-      {% endfor %}
-    </ol>
-
+    <hr>
+    <table class="table table-striped" id="rank">
+      <thead>
+          <tr class="history_scores">
+              <th>Rank</th>
+              <th>Activity</th>
+          </tr>
+      </thead>
+      <tbody>
+        {% for act in best %}
+          <tr class="history_scores">
+            <td>{{ loop.index }}</td>
+            <td>{{ act }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
     <div class="br3"></div>
 
     <h1>Activities that contribute the least to you happiness</h1>
-    <ol type="1" class="rankings">
-      {% for act in worst %}
-        <li id="ranks">{{ act }}</li>
-        <br>
-      {% endfor %}
-    </ol>
+    <hr>
+    <table class="table table-striped" id="rank">
+      <thead>
+          <tr class="history_scores">
+              <th>Rank</th>
+              <th>Activity</th>
+          </tr>
+      </thead>
+      <tbody>
+        {% for act in worst %}
+          <tr class="history_scores">
+            <td>{{ loop.index }}</td>
+            <td>{{ act }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
     <div class="br3"></div>
     <footer class="text-muted" style="margin-bottom: 0;">**Improve data accuracy with more entries**</footer>
     <script>

@@ -5,13 +5,20 @@
 {% endblock %}
 
 {% block main %}
-    <h1>Tips and Tricks for a happier lifestyle</h1>
+
+    <h5>Tips and Tricks, Tailored for You</h5>
+    <br>
+    <h3>Happiness is a continuous process. Keep working on self-development and you will see improvemnts.</h3>
+    <h3>Here are some tips and trick we've found for you based on your preferences</h3>
+    <div>
+          <img src="/static/brain.png" class="center" style='width:35%;'>
+    </div>
     <!-- From: https://getbootstrap.com/docs/4.5/components/collapse/-->
       <div class="accordion" id="accordionExample">
         <div class="card">
           <div class="card-header" id="headingOne">
             <h2 class="mb-0">
-              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+              <button class="btn btn-link btn-block text-center collapsed" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
                 Tip 1
               </button>
             </h2>
@@ -19,53 +26,35 @@
 
           <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
             <div class="card-body">
-              <span class="cb1">
-              {% for tips in tips %}
-                {% if loop.first %}
-                  {{ tips.tip }}
-                {% endif %}
-              {% endfor %}
-              </span>
+              <span class="cb1"> {% for tips in tips %}{% if loop.first %} {{ tips.tip |safe }} {% endif %}{% endfor %} </span>
             </div>
           </div>
         </div>
         <div class="card">
           <div class="card-header" id="headingTwo">
             <h2 class="mb-0">
-              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+              <button class="btn btn-link btn-block text-center collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                 Tip 2
               </button>
             </h2>
           </div>
           <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
             <div class="card-body">
-              <span class="cb2">
-                {% for tips in tips %}
-                  {% if loop.last %}
-                    {{ tips.tip }}
-                  {% endif  %}
-                {% endfor %}
-              </span>
+              <span class="cb2">{% for tips in tips %}{% if loop.last %}{{ tips.tip |safe }} {% endif  %}{% endfor %} </span>
             </div>
           </div>
         </div>
         <div class="card">
           <div class="card-header" id="headingThree">
             <h2 class="mb-0">
-              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+              <button class="btn btn-link btn-block text-center collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                 Tip 3
               </button>
             </h2>
           </div>
           <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
             <div class="card-body">
-             <span class="cb3">
-              {% for tips in tips %}
-                {% if loop.index==2 %}
-                  {{ tips.tip}}
-                {% endif %}
-              {% endfor %}
-             </span>
+             <span class="cb3"> {% for tips in tips %}{% if loop.index==2 %} {{ tips.tip |safe }}{% endif %}{% endfor %} </span>
             </div>
           </div>
         </div>

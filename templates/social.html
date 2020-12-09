@@ -13,22 +13,56 @@
     <div class="br3"></div>
 
     <h1>Activities that contribute the most to people's happiness</h1>
-    <ol type="1" class="rankings">
-      {% for act in best %}
-        <li id="ranks">{{ act }}</li>
-        <br>
-      {% endfor %}
-    </ol>
+    <hr>
+    <table class="table table-striped" id="rank">
+      <thead>
+          <tr class="history_scores">
+              <th>Rank</th>
+              <th>Activity</th>
+          </tr>
+      </thead>
+      <tbody>
+        {% for act in best %}
+          <tr class="history_scores">
+            <td>{{ loop.index }}</td>
+            <td>{{ act }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <!--<ol type="1" class="rankings">-->
+    <!--  {% for act in best %}-->
+    <!--    <li id="ranks">{{ act }}</li>-->
+    <!--    <br>-->
+    <!--  {% endfor %}-->
+    <!--</ol>-->
 
     <div class="br3"></div>
 
     <h1>Activities that contribute the least to people's happiness</h1>
-    <ol type="1" class="rankings">
-      {% for act in worst %}
-        <li id="ranks">{{ act }}</li>
-        <br>
-      {% endfor %}
-    </ol>
+    <hr>
+    <table class="table table-striped" id="rank">
+      <thead>
+          <tr class="history_scores">
+              <th>Rank</th>
+              <th>Activity</th>
+          </tr>
+      </thead>
+      <tbody>
+        {% for act in worst %}
+          <tr class="history_scores">
+            <td>{{ loop.index }}</td>
+            <td>{{ act }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <!--<ol type="1" class="rankings">-->
+    <!--  {% for act in worst %}-->
+    <!--    <li id="ranks">{{ act }}</li>-->
+    <!--    <br>-->
+    <!--  {% endfor %}-->
+    <!--</ol>-->
     <div class="br3"></div>
     <footer class="text-muted" style="margin-bottom: 0;">**Based on Happy Track user's input**</footer>
     <script>
