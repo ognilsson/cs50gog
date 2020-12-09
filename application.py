@@ -201,7 +201,7 @@ def stats():
         try:
             y.append(float(round(avg_score[0]['AVG(score)'],2)))
         except TypeError:
-            y.append(0)
+            y.append(0.5)
         # Moving one day back in time -- move to helpers
         month, day, year = back_one_day(month, day, year)
 
@@ -319,7 +319,7 @@ def sleep_stats():
         try:
             y.append(float(round(avg_sleep[0]['AVG(hours)'],2)))
         except TypeError:
-            y.append(0)
+            y.append(0.5)
         # Moving one day back in time -- move to helpers
         month, day, year = back_one_day(month, day, year)
 
