@@ -13,9 +13,13 @@ nav .navbar-brand .blue
 {
     color: #537fbe;
 }
+nav .navbar-brand .orange
+{
+    color: #ff6600;
+}
 nav .navbar-brand .red
 {
-    color: #ea433b;
+    color: #ff4d4d;
 }
 nav .navbar-brand .yellow
 {
@@ -23,7 +27,7 @@ nav .navbar-brand .yellow
 }
 nav .navbar-brand .green
 {
-    color: #2e944b;
+    color: #ace600;
 }
 
 main .form-control
@@ -233,6 +237,9 @@ hr{
 .rankings {
     display: inline-block;
     text-align: left;
+    border: 1px solid #aaa;
+    padding: .3em 1.4em .3em 2.4em;
+    border-radius: .5em;
 }
 
 
@@ -297,11 +304,13 @@ footer {
 
 .history {
     display: inline-block;
-    text-align: right;
+    text-align: center;
+
 }
 
 .history_scores {
   color: white;
+
 }
 
 .progress {
@@ -395,4 +404,21 @@ footer {
   opacity: 0;
   width: 0;
   height: 0;
+}
+
+
+h3 {
+  color: white;
+  font-size: small;
+}
+
+.logo-image{
+    width: 46px;
+    height: 46px;
+    margin-top: -6px;
+}
+
+canvas {
+  width:  100%;
+  height: 100%;
 }
