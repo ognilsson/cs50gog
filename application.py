@@ -478,20 +478,35 @@ def register():
 @app.route("/preferences", methods=["GET", "POST"])
 @login_required
 def preferences():
-    userID = session['user_id']
+    #THIS LINE DOESNT WORK
     if request.method == "POST":
+        user_id = session['user_id']
+        db.execute("delete from preferences where user_id=?;",user_id)
         preferences = request.form.getlist('cb')
-        db.execute("DELETE FROM preferences WHERE user_id=?",userID)
+        privacy = request.form.get("privacy")
+        print(privacy)
+        print(preferences)
         for preference in preferences:
             p_id = preference.replace('/','')
             integerId = int(p_id)
-            db.execute("Insert into preferences (user_id, preference_id) values(?,?);",userID,integerId)
+            db.execute("Insert into preferences (user_id, preference_id) values(?,?);",user_id,integerId)
+        if not privacy:
+             privacy='F'
+        db.execute("UPDATE privacy SET keep_private = ? WHERE user_id = ?", privacy,user_id)
         return redirect("/")
 
     else:
-        if request.args.get("hasNoPreferences"):
-            return render_template("preferences.html",hasNoPreferences=True,id=request.args.get(id))
-        return render_template("preferences.html")
+        user_id = session['user_id']
+        privacy= db.execute("SELECT keep_private from privacy where user_id= ?;",user_id)
+        if not privacy:
+            db.execute("Insert into privacy (user_id, keep_private) VALUES (?,'T')",user_id)
+        privacy= db.execute("SELECT keep_private from privacy where user_id= ?;",user_id)
+        prefs = db.execute("SELECT category_id, category_name from categories;")
+        currentPrefs = db.execute("SELECT preference_id from preferences where user_id = ?;",user_id)
+        print(privacy)
+        print(currentPrefs)
+        print(prefs)
+        return render_template("preferences.html" , prefs=prefs, currentPrefs=currentPrefs, privacy=privacy)
 
 
 @app.route("/forgot_password", methods=["GET", "POST"]) ##### Need to add function so users can change password
@@ -629,8 +644,8 @@ def social():
     """
     activity_count = {}
     x2, y2 = [], []
-    activities = db.execute("SELECT activity_id FROM activity_entry")
-
+    activities = db.execute("SELECT activity_id FROM activity_entry WHERE user_id NOT IN (SELECT user_id FROM privacy WHERE keep_private = 'on')")
+    print(db.execute("SELECT * FROM privacy"))
     for row in activities:
         if row["activity_id"] in activity_count:
             activity_count[row["activity_id"]] += 1
