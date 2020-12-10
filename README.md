@@ -1,4 +1,7 @@
 # Happy Track
+
+Video Description: https://youtu.be/RXm6h9cHe3Q
+
 Especially amidst a global pandemic, there is a growing need for an easy and accessible way for people to keep track of emotions and the activities linked to those emotions.
 Monitoring one’s mood is essential for mood management and improving mental health. Given that 1 in 3 US adults had symptoms of clinical anxiety or depression pre-pandemic,
 there is an obvious need for better mood management and awareness. COVID-19 has only exacerbated mental stressors. A key to improving mental health is early awareness of
